@@ -1,3 +1,4 @@
+import { Card, Col, Row, Statistic } from 'antd'
 import { formatTotalBalance } from '../../../lib/formatCurrency'
 import type { ReportSummary } from '../types/ReportTypes'
 import styles from './ReportSummaryCards.module.css'
@@ -7,25 +8,26 @@ interface ReportSummaryCardsProps {
 }
 
 function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
-  const netClass = summary.netBalance >= 0 ? styles.positive : styles.negative
+  const netClass = summary.netBalance >= 0 ? styles.netPositive : styles.netNegative
 
   return (
-    <div className={styles.grid}>
-      <article className={styles.card}>
-        <p className={styles.label}>Total Income</p>
-        <p className={`${styles.value} ${styles.income}`}>{formatTotalBalance(summary.totalIncome)}</p>
-      </article>
-
-      <article className={styles.card}>
-        <p className={styles.label}>Total Expense</p>
-        <p className={`${styles.value} ${styles.expense}`}>{formatTotalBalance(summary.totalExpense)}</p>
-      </article>
-
-      <article className={styles.card}>
-        <p className={styles.label}>Net Balance</p>
-        <p className={`${styles.value} ${styles.net} ${netClass}`}>{formatTotalBalance(summary.netBalance)}</p>
-      </article>
-    </div>
+    <Row gutter={[16, 16]}>
+      <Col xs={24} sm={12} md={8}>
+        <Card size="small" className={styles.incomeCard}>
+          <Statistic title="Total Income" value={formatTotalBalance(summary.totalIncome)} />
+        </Card>
+      </Col>
+      <Col xs={24} sm={12} md={8}>
+        <Card size="small" className={styles.expenseCard}>
+          <Statistic title="Total Expense" value={formatTotalBalance(summary.totalExpense)} />
+        </Card>
+      </Col>
+      <Col xs={24} sm={12} md={8}>
+        <Card size="small" className={netClass}>
+          <Statistic title="Net Balance" value={formatTotalBalance(summary.netBalance)} />
+        </Card>
+      </Col>
+    </Row>
   )
 }
 

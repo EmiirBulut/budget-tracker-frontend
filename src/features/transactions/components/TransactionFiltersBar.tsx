@@ -1,97 +1,103 @@
+import { Button, Card, Col, DatePicker, Row, Select, Space } from 'antd'
+import dayjs from 'dayjs'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
 import { useCards } from '../../cards/hooks/useCards'
 import type { TransactionType, TransactionsQueryParams } from '../types/TransactionTypes'
-import styles from './TransactionFiltersBar.module.css'
+
+const { RangePicker } = DatePicker
 
 interface TransactionFiltersBarProps {
   filters: TransactionsQueryParams
   onFiltersChange: (filters: TransactionsQueryParams) => void
 }
 
+const typeOptions = [
+  { label: 'All types', value: '' },
+  { label: 'Expense', value: 'Expense' },
+  { label: 'Income', value: 'Income' },
+  { label: 'Installment', value: 'Installment' },
+]
+
 function TransactionFiltersBar({ filters, onFiltersChange }: TransactionFiltersBarProps) {
   const { data: accounts } = useAccounts()
   const { data: cards } = useCards()
 
+  const accountOptions = [
+    { label: 'All accounts', value: '' },
+    ...(accounts ?? []).map((a) => ({ label: a.name, value: a.id })),
+  ]
+
+  const cardOptions = [
+    { label: 'All cards', value: '' },
+    ...(cards ?? []).map((c) => ({ label: `${c.name} (**** ${c.last4Digits})`, value: c.id })),
+  ]
+
   const handleChange = (key: keyof TransactionsQueryParams, value: string): void => {
     onFiltersChange({ ...filters, [key]: value || undefined, page: 1 })
+  }
+
+  const handleDateRange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null): void => {
+    if (!dates || !dates[0] || !dates[1]) {
+      const { startDate: _s, endDate: _e, ...rest } = filters
+      onFiltersChange({ ...rest, page: 1 })
+      return
+    }
+    onFiltersChange({
+      ...filters,
+      startDate: dates[0].toISOString().split('T')[0],
+      endDate: dates[1].toISOString().split('T')[0],
+      page: 1,
+    })
   }
 
   const handleClear = (): void => {
     onFiltersChange({ page: 1, pageSize: filters.pageSize })
   }
 
+  const dateRangeValue: [dayjs.Dayjs, dayjs.Dayjs] | null =
+    filters.startDate && filters.endDate
+      ? [dayjs(filters.startDate), dayjs(filters.endDate)]
+      : null
+
   return (
-    <div className={styles.bar}>
-      <div className={styles.field}>
-        <label className={styles.label}>Account</label>
-        <select
-          className={styles.input}
-          value={filters.accountId ?? ''}
-          onChange={(e) => handleChange('accountId', e.target.value)}
-        >
-          <option value="">All accounts</option>
-          {(accounts ?? []).map((a) => (
-            <option value={a.id} key={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Card</label>
-        <select
-          className={styles.input}
-          value={filters.cardId ?? ''}
-          onChange={(e) => handleChange('cardId', e.target.value)}
-        >
-          <option value="">All cards</option>
-          {(cards ?? []).map((c) => (
-            <option value={c.id} key={c.id}>
-              {c.name} (**** {c.last4Digits})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Type</label>
-        <select
-          className={styles.input}
-          value={filters.type ?? ''}
-          onChange={(e) => handleChange('type', e.target.value as TransactionType)}
-        >
-          <option value="">All types</option>
-          <option value="Expense">Expense</option>
-          <option value="Income">Income</option>
-          <option value="Installment">Installment</option>
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>From</label>
-        <input
-          type="date"
-          className={styles.input}
-          value={filters.startDate ?? ''}
-          onChange={(e) => handleChange('startDate', e.target.value)}
-        />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>To</label>
-        <input
-          type="date"
-          className={styles.input}
-          value={filters.endDate ?? ''}
-          onChange={(e) => handleChange('endDate', e.target.value)}
-        />
-      </div>
-
-      <button type="button" className={styles.clearButton} onClick={handleClear}>
-        Clear filters
-      </button>
-    </div>
+    <Card size="small">
+      <Row gutter={[12, 12]} align="middle">
+        <Col xs={24} sm={12} md={6}>
+          <Select
+            options={accountOptions}
+            value={filters.accountId ?? ''}
+            onChange={(v) => handleChange('accountId', v)}
+            placeholder="All accounts"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Select
+            options={cardOptions}
+            value={filters.cardId ?? ''}
+            onChange={(v) => handleChange('cardId', v)}
+            placeholder="All cards"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Select
+            options={typeOptions}
+            value={filters.type ?? ''}
+            onChange={(v) => handleChange('type', v as TransactionType)}
+            placeholder="All types"
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Space>
+            <RangePicker
+              value={dateRangeValue}
+              onChange={handleDateRange}
+              size="middle"
+            />
+            <Button onClick={handleClear}>Clear</Button>
+          </Space>
+        </Col>
+      </Row>
+    </Card>
   )
 }
 

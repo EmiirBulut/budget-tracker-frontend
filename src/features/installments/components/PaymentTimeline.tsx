@@ -1,7 +1,8 @@
-import { Tag } from 'antd'
+import { Button, List, Tag, Typography } from 'antd'
 import { useMarkPaymentPaid } from '../hooks/useMarkPaymentPaid'
 import type { InstallmentPayment } from '../types/InstallmentTypes'
-import styles from './PaymentTimeline.module.css'
+
+const { Text } = Typography
 
 interface PaymentTimelineProps {
   planId: string
@@ -19,48 +20,52 @@ function PaymentTimeline({ planId, payments }: PaymentTimelineProps) {
   const sortedPayments = [...payments].sort((a, b) => a.monthNumber - b.monthNumber)
 
   return (
-    <div className={styles.timeline}>
-      {sortedPayments.map((payment) => {
+    <List
+      dataSource={sortedPayments}
+      renderItem={(payment) => {
         const dueDate = new Date(payment.dueDate)
         const isOverdue = !payment.isPaid && dueDate < now
 
         return (
-          <div key={payment.id} className={styles.row}>
-            <span className={styles.monthNum}>#{payment.monthNumber}</span>
-
-            <div>
-              <p className={styles.dueDate}>Due {dueDate.toLocaleDateString()}</p>
-              {payment.isPaid && payment.paidDate && (
-                <p className={styles.paidDate}>Paid {new Date(payment.paidDate).toLocaleDateString()}</p>
-              )}
-            </div>
-
-            <div>
-              {payment.isPaid ? (
-                <Tag color="success">Paid</Tag>
-              ) : isOverdue ? (
-                <Tag color="error">Overdue</Tag>
-              ) : (
-                <Tag color="default">Upcoming</Tag>
-              )}
-            </div>
-
-            <div>
-              {!payment.isPaid && (
-                <button
-                  type="button"
-                  className={styles.markPaidButton}
+          <List.Item
+            actions={[
+              !payment.isPaid && (
+                <Button
+                  key="mark-paid"
+                  size="small"
+                  type="primary"
+                  loading={isPending}
                   onClick={() => handleMarkPaid(payment.id)}
-                  disabled={isPending}
                 >
                   Mark paid
-                </button>
-              )}
-            </div>
-          </div>
+                </Button>
+              ),
+            ].filter(Boolean)}
+          >
+            <List.Item.Meta
+              title={
+                <Text strong>#{payment.monthNumber}</Text>
+              }
+              description={
+                <>
+                  <Text type="secondary">Due {dueDate.toLocaleDateString()}</Text>
+                  {payment.isPaid && payment.paidDate && (
+                    <Text type="secondary"> · Paid {new Date(payment.paidDate).toLocaleDateString()}</Text>
+                  )}
+                </>
+              }
+            />
+            {payment.isPaid ? (
+              <Tag color="success">Paid</Tag>
+            ) : isOverdue ? (
+              <Tag color="error">Overdue</Tag>
+            ) : (
+              <Tag color="default">Upcoming</Tag>
+            )}
+          </List.Item>
         )
-      })}
-    </div>
+      }}
+    />
   )
 }
 

@@ -1,6 +1,8 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, DatePicker, Form, Input, InputNumber, Select } from 'antd'
+import dayjs from 'dayjs'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useCards } from '../../cards/hooks/useCards'
 import type { CreateInstallmentPlanRequest } from '../types/InstallmentTypes'
@@ -29,13 +31,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
   const { data: cards } = useCards()
   const today = new Date().toISOString().split('T')[0]
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<InstallmentPlanFormValues>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<InstallmentPlanFormValues>({
     resolver: zodResolver(installmentPlanSchema),
     defaultValues: {
       cardId: '',
@@ -64,120 +60,132 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
     })
   }
 
+  const cardOptions = (cards ?? []).map((c) => ({
+    label: `${c.name} (**** ${c.last4Digits})`,
+    value: c.id,
+  }))
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="cardId" className={styles.label}>
-          Card
-        </label>
-        <select
-          id="cardId"
-          className={`${styles.input} ${errors.cardId ? styles.hasError : ''}`}
-          {...register('cardId')}
-        >
-          <option value="">Select a card</option>
-          {(cards ?? []).map((c) => (
-            <option value={c.id} key={c.id}>
-              {c.name} (**** {c.last4Digits})
-            </option>
-          ))}
-        </select>
-        {errors.cardId && <span className={styles.errorText}>{errors.cardId.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="name" className={styles.label}>
-          Plan name
-        </label>
-        <input
-          id="name"
-          placeholder="e.g. Laptop purchase"
-          className={`${styles.input} ${errors.name ? styles.hasError : ''}`}
-          {...register('name')}
+    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
+      <Form.Item label="Card" validateStatus={errors.cardId ? 'error' : ''} help={errors.cardId?.message}>
+        <Controller
+          name="cardId"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              options={cardOptions}
+              placeholder="Select a card"
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
         />
-        {errors.name && <span className={styles.errorText}>{errors.name.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="category" className={styles.label}>
-          Category
-        </label>
-        <input
-          id="category"
-          placeholder="e.g. Electronics, Travel"
-          className={`${styles.input} ${errors.category ? styles.hasError : ''}`}
-          {...register('category')}
+      <Form.Item label="Plan name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g. Laptop purchase" size="large" />
+          )}
         />
-        {errors.category && <span className={styles.errorText}>{errors.category.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="totalAmount" className={styles.label}>
-          Total amount
-        </label>
-        <input
-          id="totalAmount"
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          className={`${styles.input} ${errors.totalAmount ? styles.hasError : ''}`}
-          {...register('totalAmount')}
+      <Form.Item label="Category" validateStatus={errors.category ? 'error' : ''} help={errors.category?.message}>
+        <Controller
+          name="category"
+          control={control}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g. Electronics, Travel" size="large" />
+          )}
         />
-        {errors.totalAmount && <span className={styles.errorText}>{errors.totalAmount.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="numberOfMonths" className={styles.label}>
-          Number of months
-        </label>
-        <input
-          id="numberOfMonths"
-          type="number"
-          min="1"
-          max="360"
-          className={`${styles.input} ${errors.numberOfMonths ? styles.hasError : ''}`}
-          {...register('numberOfMonths')}
+      <Form.Item label="Total amount" validateStatus={errors.totalAmount ? 'error' : ''} help={errors.totalAmount?.message}>
+        <Controller
+          name="totalAmount"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              prefix="$"
+              min={0}
+              step={0.01}
+              placeholder="0.00"
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
         />
-        {errors.numberOfMonths && <span className={styles.errorText}>{errors.numberOfMonths.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="monthlyPayment" className={styles.label}>
-          Monthly payment
-        </label>
-        <input
-          id="monthlyPayment"
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="Auto-calculated"
-          className={`${styles.input} ${errors.monthlyPayment ? styles.hasError : ''}`}
-          {...register('monthlyPayment')}
+      <Form.Item label="Number of months" validateStatus={errors.numberOfMonths ? 'error' : ''} help={errors.numberOfMonths?.message}>
+        <Controller
+          name="numberOfMonths"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              min={1}
+              max={360}
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
         />
-        <span className={styles.hint}>Auto-calculated from total ÷ months. You can override.</span>
-        {errors.monthlyPayment && <span className={styles.errorText}>{errors.monthlyPayment.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="startDate" className={styles.label}>
-          Start date
-        </label>
-        <input
-          id="startDate"
-          type="date"
-          className={`${styles.input} ${errors.startDate ? styles.hasError : ''}`}
-          {...register('startDate')}
+      <Form.Item
+        label="Monthly payment"
+        validateStatus={errors.monthlyPayment ? 'error' : ''}
+        help={errors.monthlyPayment?.message ?? 'Auto-calculated from total ÷ months. You can override.'}
+      >
+        <Controller
+          name="monthlyPayment"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              prefix="$"
+              min={0}
+              step={0.01}
+              placeholder="Auto-calculated"
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
         />
-        {errors.startDate && <span className={styles.errorText}>{errors.startDate.message}</span>}
-      </div>
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      <Form.Item label="Start date" validateStatus={errors.startDate ? 'error' : ''} help={errors.startDate?.message}>
+        <Controller
+          name="startDate"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              value={field.value ? dayjs(field.value) : null}
+              onChange={(d) => field.onChange(d ? d.toISOString().split('T')[0] : '')}
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
+        />
+      </Form.Item>
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Creating…' : submitLabel}
-      </button>
-    </form>
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Creating…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

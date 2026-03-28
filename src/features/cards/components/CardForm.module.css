@@ -1,91 +1,36 @@
+/* Form top spacing */
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
+  margin-top: 16px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.input {
+/* InputNumber needs explicit width — it has no block prop */
+.inputFull {
   width: 100%;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  outline: none;
 }
 
-.input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-.input.hasError {
-  border-color: var(--color-danger);
-}
-
-.errorText {
-  font-size: 0.8125rem;
-  color: var(--color-danger);
-}
-
-.apiError {
-  padding: 0.625rem 0.75rem;
-  background: var(--color-danger-light);
-  border: 1px solid #fecaca;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  color: var(--color-danger);
-}
-
-.submitButton {
-  margin-top: 0.25rem;
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.submitButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.colorGrid {
+/* Color swatch row */
+.swatchRow {
   display: flex;
-  gap: 0.5rem;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
-.colorSwatch {
-  width: 2rem;
-  height: 2rem;
+/* Dynamic color swatches — CSS custom property set per-swatch for the accepted dynamic-color exception */
+.swatch {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
+  background-color: var(--swatch-color);
   border: 3px solid transparent;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s, border-color 0.1s;
 }
 
-.colorSwatch:hover {
+.swatch:hover {
   transform: scale(1.15);
 }
 
-.colorSwatch.selected {
-  border-color: var(--color-text);
+.swatchSelected {
+  border-color: #111827;
   transform: scale(1.15);
 }

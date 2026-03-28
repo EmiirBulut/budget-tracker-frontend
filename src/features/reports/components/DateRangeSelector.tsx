@@ -1,4 +1,7 @@
-import styles from './DateRangeSelector.module.css'
+import { Button, Card, DatePicker, Space } from 'antd'
+import dayjs from 'dayjs'
+
+const { RangePicker } = DatePicker
 
 interface DateRangeSelectorProps {
   from: string
@@ -30,43 +33,28 @@ function DateRangeSelector({ from, to, onChange }: DateRangeSelectorProps) {
     onChange(toDateString(start), toDateString(end))
   }
 
+  const rangeValue: [dayjs.Dayjs, dayjs.Dayjs] | null =
+    from && to ? [dayjs(from), dayjs(to)] : null
+
+  const handleRangeChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null): void => {
+    if (dates && dates[0] && dates[1]) {
+      onChange(
+        dates[0].toISOString().split('T')[0],
+        dates[1].toISOString().split('T')[0],
+      )
+    }
+  }
+
   return (
-    <div className={styles.wrap}>
-      <div className={styles.field}>
-        <label className={styles.label}>From</label>
-        <input
-          type="date"
-          className={styles.input}
-          value={from}
-          onChange={(e) => onChange(e.target.value, to)}
-        />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>To</label>
-        <input
-          type="date"
-          className={styles.input}
-          value={to}
-          onChange={(e) => onChange(from, e.target.value)}
-        />
-      </div>
-
-      <div className={styles.presets}>
-        <button type="button" className={styles.preset} onClick={() => applyPreset('this-month')}>
-          This month
-        </button>
-        <button type="button" className={styles.preset} onClick={() => applyPreset('last-3')}>
-          Last 3 months
-        </button>
-        <button type="button" className={styles.preset} onClick={() => applyPreset('last-6')}>
-          Last 6 months
-        </button>
-        <button type="button" className={styles.preset} onClick={() => applyPreset('this-year')}>
-          This year
-        </button>
-      </div>
-    </div>
+    <Card size="small">
+      <Space wrap>
+        <RangePicker value={rangeValue} onChange={handleRangeChange} />
+        <Button size="small" onClick={() => applyPreset('this-month')}>This month</Button>
+        <Button size="small" onClick={() => applyPreset('last-3')}>Last 3 months</Button>
+        <Button size="small" onClick={() => applyPreset('last-6')}>Last 6 months</Button>
+        <Button size="small" onClick={() => applyPreset('this-year')}>This year</Button>
+      </Space>
+    </Card>
   )
 }
 

@@ -1,143 +1,78 @@
+/* Page-level vertical rhythm */
 .page {
-  display: grid;
-  gap: 1rem;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.welcome {
-  color: var(--color-text-secondary);
-}
-
-.alert {
-  margin-top: 0.25rem;
-}
-
-.summaryGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.summaryCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 0.875rem;
-}
-
-.summaryLabel {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.25rem;
-}
-
-.summaryValue {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 0.875rem;
-}
-
-.panelHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.625rem;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.panelTitle {
-  font-size: 1rem;
-  font-weight: 700;
+/* Blue hero balance card — matches design token colorPrimary */
+.balanceCard {
+  background-color: #2563eb;
+  border: none;
 }
 
-.list {
-  display: grid;
-  gap: 0.625rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.balanceCard :global(.ant-card-body) {
+  padding: 24px;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
+/* Text inside the hero card */
+.heroLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
 }
 
-.row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.heroAmount {
+  color: #fff;
+  margin: 4px 0 16px;
 }
 
-.rowTitle {
-  font-weight: 600;
-  color: var(--color-text);
+/* Income/Expense sub-cards inside the blue hero */
+.heroSubCard {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  flex: 1;
 }
 
-.rowSub {
-  color: var(--color-text-secondary);
-  font-size: 0.8125rem;
+.heroSubCard :global(.ant-card-body) {
+  padding: 16px;
 }
 
-.rowAmount {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--color-primary);
+.heroSubLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  display: block;
 }
 
+.heroSubAmount {
+  color: #fff;
+  margin: 4px 0 0;
+}
+
+/* Chart container — Recharts ResponsiveContainer needs explicit height */
+.chartWrap {
+  width: 100%;
+  height: 260px;
+}
+
+@media (max-width: 575px) {
+  .chartWrap {
+    height: 200px;
+  }
+}
+
+/* Colored transaction amounts */
 .incomeAmount {
-  color: var(--color-success);
-  font-weight: 700;
+  color: #16a34a;
+  font-weight: 600;
 }
 
 .expenseAmount {
-  color: var(--color-danger);
-  font-weight: 700;
+  color: #dc2626;
+  font-weight: 600;
 }
 
-.emptyText {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-}
-
-.chartWrap {
-  width: 100%;
-}
-
-@media (max-width: 1080px) {
-  .summaryGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 680px) {
-  .summaryGrid {
-    grid-template-columns: 1fr;
-  }
+/* Account mini-cards inside the "My Accounts" panel */
+.accountMiniCard :global(.ant-card-body) {
+  padding: 12px;
 }

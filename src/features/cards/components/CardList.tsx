@@ -1,9 +1,8 @@
-import { Alert, Empty, Skeleton } from 'antd'
+import { Alert, Col, Empty, Row, Skeleton } from 'antd'
 import { useArchiveCard } from '../hooks/useArchiveCard'
 import { useCards } from '../hooks/useCards'
 import type { Card } from '../types/CardTypes'
 import CardItem from './CardItem'
-import styles from './CardList.module.css'
 
 interface CardListProps {
   onEdit: (card: Card) => void
@@ -19,10 +18,10 @@ function CardList({ onEdit }: CardListProps) {
 
   if (isLoading) {
     return (
-      <div className={styles.grid}>
-        <Skeleton active paragraph={{ rows: 4 }} />
-        <Skeleton active paragraph={{ rows: 4 }} />
-      </div>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
+      </Row>
     )
   }
 
@@ -36,11 +35,13 @@ function CardList({ onEdit }: CardListProps) {
   }
 
   return (
-    <div className={styles.grid}>
+    <Row gutter={[16, 16]}>
       {data.map((card) => (
-        <CardItem key={card.id} card={card} onEdit={onEdit} onArchive={handleArchive} isArchiving={isArchiving} />
+        <Col key={card.id} xs={24} sm={12}>
+          <CardItem card={card} onEdit={onEdit} onArchive={handleArchive} isArchiving={isArchiving} />
+        </Col>
       ))}
-    </div>
+    </Row>
   )
 }
 

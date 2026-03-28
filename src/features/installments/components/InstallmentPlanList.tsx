@@ -1,17 +1,16 @@
-import { Alert, Empty, Skeleton } from 'antd'
+import { Alert, Col, Empty, Row, Skeleton } from 'antd'
 import { useInstallmentPlans } from '../hooks/useInstallmentPlans'
 import InstallmentPlanCard from './InstallmentPlanCard'
-import styles from './InstallmentPlanList.module.css'
 
 function InstallmentPlanList() {
   const { data, isLoading, isError, error } = useInstallmentPlans()
 
   if (isLoading) {
     return (
-      <div className={styles.grid}>
-        <Skeleton active paragraph={{ rows: 5 }} />
-        <Skeleton active paragraph={{ rows: 5 }} />
-      </div>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}><Skeleton active paragraph={{ rows: 5 }} /></Col>
+        <Col xs={24} md={12}><Skeleton active paragraph={{ rows: 5 }} /></Col>
+      </Row>
     )
   }
 
@@ -25,11 +24,13 @@ function InstallmentPlanList() {
   }
 
   return (
-    <div className={styles.grid}>
+    <Row gutter={[16, 16]}>
       {data.map((plan) => (
-        <InstallmentPlanCard key={plan.id} plan={plan} />
+        <Col xs={24} md={12} key={plan.id}>
+          <InstallmentPlanCard plan={plan} />
+        </Col>
       ))}
-    </div>
+    </Row>
   )
 }
 

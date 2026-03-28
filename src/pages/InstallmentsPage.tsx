@@ -1,24 +1,25 @@
-import { Button } from 'antd'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
 import AddInstallmentPlanModal from '../features/installments/components/AddInstallmentPlanModal'
 import InstallmentPlanList from '../features/installments/components/InstallmentPlanList'
-import styles from './AccountsPage.module.css'
+import styles from './InstallmentsPage.module.css'
+
+const { Title, Text } = Typography
 
 function InstallmentsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
+      <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.title}>Installments</h1>
-          <p className={styles.description}>Track installment plans and monthly payment schedules.</p>
+          <Title level={3} style={{ margin: 0 }}>Installments</Title>
+          <Text type="secondary">Track installment plans and monthly payment schedules.</Text>
         </div>
-
-        <Button type="primary" onClick={() => setIsAddOpen(true)}>
+        <Button type="primary" size="large" onClick={() => setIsAddOpen(true)}>
           Create plan
         </Button>
-      </header>
+      </div>
 
       <InstallmentPlanList />
 

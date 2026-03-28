@@ -1,5 +1,1 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
+/* CardList — grid expressed via Ant Design Row/Col */

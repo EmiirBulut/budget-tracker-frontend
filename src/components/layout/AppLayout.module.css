@@ -1,37 +1,38 @@
-.layout {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 16rem 1fr;
-  background: var(--color-bg);
-}
-
-.mainArea {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
+/* Layout-level structural styles — cannot be expressed via Ant Design component props alone */
 .header {
-  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  height: 64px;
+  line-height: 64px;
+  gap: 8px;
 }
 
+.menuBtn {
+  flex-shrink: 0;
+}
+
+/* Push email to fill available space, sign-out button stays on the right */
 .userEmail {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .content {
-  padding: 1.25rem;
+  padding: 24px;
 }
 
-@media (max-width: 960px) {
-  .layout {
-    grid-template-columns: 1fr;
+@media (max-width: 575px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .content {
+    padding: 16px 12px;
   }
 }

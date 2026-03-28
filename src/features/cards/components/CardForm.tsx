@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, Col, Form, Input, InputNumber, Row, Select, Typography } from 'antd'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
 import { CURRENCY_LABELS } from '../../accounts/types/AccountTypes'
@@ -15,6 +16,8 @@ import {
 } from '../types/CardTypes'
 import styles from './CardForm.module.css'
 
+const { Text } = Typography
+
 const baseCardSchema = {
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
   cardType: z.nativeEnum(CardType),
@@ -26,19 +29,7 @@ const baseCardSchema = {
   linkedAccountId: z.string().nullable().optional(),
 }
 
-const createCardSchema = z
-  .object({
-    ...baseCardSchema,
-    cardCategory: z.nativeEnum(CardCategory),
-  })
-  .refine(
-    (data) => {
-      if (data.cardCategory === CardCategory.Credit) return true
-      return true
-    },
-    { message: '' },
-  )
-
+const createCardSchema = z.object({ ...baseCardSchema, cardCategory: z.nativeEnum(CardCategory) })
 const editCardSchema = z.object(baseCardSchema)
 
 type CreateCardFormValues = z.infer<typeof createCardSchema>
@@ -65,26 +56,51 @@ interface EditProps extends BaseProps {
 
 type CardFormProps = CreateProps | EditProps
 
+const cardTypeOptions = Object.values(CardType).map((t) => ({ label: CARD_TYPE_LABELS[t], value: t }))
+const currencyOptions = Object.values(Currency).map((c) => ({ label: CURRENCY_LABELS[c], value: c }))
+const cardCategoryOptions = [
+  { label: 'Credit', value: CardCategory.Credit },
+  { label: 'Debit', value: CardCategory.Debit },
+]
+
 function CardForm(props: CardFormProps) {
-  if (props.mode === 'create') {
-    return <CreateCardForm {...props} />
-  }
+  if (props.mode === 'create') return <CreateCardForm {...props} />
   return <EditCardForm {...props} />
 }
 
-const cardTypeOptions = Object.values(CardType)
-const currencyOptions = Object.values(Currency)
+function ColorSwatchField({
+  colors,
+  selected,
+  onSelect,
+  error,
+}: {
+  colors: string[]
+  selected: string
+  onSelect: (c: string) => void
+  error?: string
+}) {
+  return (
+    <Form.Item label="Card Color" validateStatus={error ? 'error' : ''} help={error}>
+      <div className={styles.swatchRow}>
+        {colors.map((color) => (
+          <button
+            key={color}
+            type="button"
+            className={`${styles.swatch} ${selected === color ? styles.swatchSelected : ''}`}
+            style={{ '--swatch-color': color } as React.CSSProperties}
+            onClick={() => onSelect(color)}
+            aria-label={`Select color ${color}`}
+          />
+        ))}
+      </div>
+    </Form.Item>
+  )
+}
 
 function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: CreateProps) {
   const { data: accounts } = useAccounts()
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<CreateCardFormValues>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<CreateCardFormValues>({
     resolver: zodResolver(createCardSchema),
     defaultValues: {
       name: initialValues?.name ?? '',
@@ -107,274 +123,190 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
     setValue('linkedAccountId', null)
   }, [selectedCategory, setValue])
 
+  const accountOptions = (accounts ?? []).map((a) => ({ label: a.name, value: a.id }))
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="name" className={styles.label}>
-          Name
-        </label>
-        <input id="name" className={`${styles.input} ${errors.name ? styles.hasError : ''}`} {...register('name')} />
-        {errors.name && <span className={styles.errorText}>{errors.name.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="cardCategory" className={styles.label}>
-          Card category
-        </label>
-        <select id="cardCategory" className={styles.input} {...register('cardCategory')}>
-          <option value={CardCategory.Credit}>Credit</option>
-          <option value={CardCategory.Debit}>Debit</option>
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="cardType" className={styles.label}>
-          Card type
-        </label>
-        <select id="cardType" className={styles.input} {...register('cardType')}>
-          {cardTypeOptions.map((t) => (
-            <option value={t} key={t}>
-              {CARD_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="last4Digits" className={styles.label}>
-          Last 4 digits
-        </label>
-        <input
-          id="last4Digits"
-          maxLength={4}
-          placeholder="1234"
-          className={`${styles.input} ${errors.last4Digits ? styles.hasError : ''}`}
-          {...register('last4Digits')}
+    <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
+      <Form.Item label="Card Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+        <Controller name="name" control={control}
+          render={({ field }) => <Input {...field} placeholder="e.g., Main Credit Card" size="large" />}
         />
-        {errors.last4Digits && <span className={styles.errorText}>{errors.last4Digits.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="expiryDate" className={styles.label}>
-          Expiry date
-        </label>
-        <input
-          id="expiryDate"
-          placeholder="MM/YY"
-          maxLength={5}
-          className={`${styles.input} ${errors.expiryDate ? styles.hasError : ''}`}
-          {...register('expiryDate')}
+      <Form.Item label="Card Category" validateStatus={errors.cardCategory ? 'error' : ''} help={errors.cardCategory?.message}>
+        <Controller name="cardCategory" control={control}
+          render={({ field }) => <Select {...field} options={cardCategoryOptions} size="large" />}
         />
-        {errors.expiryDate && <span className={styles.errorText}>{errors.expiryDate.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="currency" className={styles.label}>
-          Currency
-        </label>
-        <select id="currency" className={styles.input} {...register('currency')}>
-          {currencyOptions.map((c) => (
-            <option value={c} key={c}>
-              {CURRENCY_LABELS[c]}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Form.Item label="Card Type" validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
+        <Controller name="cardType" control={control}
+          render={({ field }) => <Select {...field} options={cardTypeOptions} size="large" />}
+        />
+      </Form.Item>
 
-      <div className={styles.field}>
-        <span className={styles.label}>Color</span>
-        <div className={styles.colorGrid}>
-          {CARD_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              className={`${styles.colorSwatch} ${selectedColor === color ? styles.selected : ''}`}
-              style={{ backgroundColor: color }}
-              onClick={() => setValue('color', color)}
-              aria-label={color}
+      <Row gutter={12}>
+        <Col xs={24} sm={12}>
+          <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
+            <Controller name="last4Digits" control={control}
+              render={({ field }) => <Input {...field} maxLength={4} placeholder="4532" size="large" />}
             />
-          ))}
-        </div>
-        {errors.color && <span className={styles.errorText}>{errors.color.message}</span>}
-      </div>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
+            <Controller name="expiryDate" control={control}
+              render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Form.Item label="Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+        <Controller name="currency" control={control}
+          render={({ field }) => <Select {...field} options={currencyOptions} size="large" />}
+        />
+      </Form.Item>
+
+      <ColorSwatchField
+        colors={CARD_COLORS}
+        selected={selectedColor}
+        onSelect={(c) => setValue('color', c)}
+        error={errors.color?.message}
+      />
 
       {selectedCategory === CardCategory.Credit && (
-        <div className={styles.field}>
-          <label htmlFor="creditLimit" className={styles.label}>
-            Credit limit
-          </label>
-          <input
-            id="creditLimit"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            className={`${styles.input} ${errors.creditLimit ? styles.hasError : ''}`}
-            {...register('creditLimit')}
+        <Form.Item label="Credit Limit" validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
+          <Controller name="creditLimit" control={control}
+            render={({ field }) => (
+              <InputNumber {...field} value={field.value ?? undefined} prefix="$" min={0} step={0.01} size="large" className={styles.inputFull} />
+            )}
           />
-          {errors.creditLimit && <span className={styles.errorText}>{errors.creditLimit.message}</span>}
-        </div>
+        </Form.Item>
       )}
 
       {selectedCategory === CardCategory.Debit && (
-        <div className={styles.field}>
-          <label htmlFor="linkedAccountId" className={styles.label}>
-            Linked account
-          </label>
-          <select id="linkedAccountId" className={styles.input} {...register('linkedAccountId')}>
-            <option value="">No linked account</option>
-            {(accounts ?? []).map((a) => (
-              <option value={a.id} key={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Form.Item label="Linked Account">
+          <Controller name="linkedAccountId" control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                value={field.value ?? undefined}
+                options={[{ label: 'No linked account', value: '' }, ...accountOptions]}
+                size="large"
+              />
+            )}
+          />
+          <Text type="secondary">Select the account this debit card is linked to</Text>
+        </Form.Item>
       )}
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </button>
-    </form>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Saving…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 
 function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues, cardCategory }: EditProps) {
   const { data: accounts } = useAccounts()
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<EditCardFormValues>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<EditCardFormValues>({
     resolver: zodResolver(editCardSchema),
     defaultValues: initialValues,
   })
 
   const selectedColor = watch('color')
+  const accountOptions = (accounts ?? []).map((a) => ({ label: a.name, value: a.id }))
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="name" className={styles.label}>
-          Name
-        </label>
-        <input id="name" className={`${styles.input} ${errors.name ? styles.hasError : ''}`} {...register('name')} />
-        {errors.name && <span className={styles.errorText}>{errors.name.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="cardType" className={styles.label}>
-          Card type
-        </label>
-        <select id="cardType" className={styles.input} {...register('cardType')}>
-          {cardTypeOptions.map((t) => (
-            <option value={t} key={t}>
-              {CARD_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="last4Digits" className={styles.label}>
-          Last 4 digits
-        </label>
-        <input
-          id="last4Digits"
-          maxLength={4}
-          className={`${styles.input} ${errors.last4Digits ? styles.hasError : ''}`}
-          {...register('last4Digits')}
+    <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
+      <Form.Item label="Card Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+        <Controller name="name" control={control}
+          render={({ field }) => <Input {...field} size="large" />}
         />
-        {errors.last4Digits && <span className={styles.errorText}>{errors.last4Digits.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="expiryDate" className={styles.label}>
-          Expiry date
-        </label>
-        <input
-          id="expiryDate"
-          placeholder="MM/YY"
-          maxLength={5}
-          className={`${styles.input} ${errors.expiryDate ? styles.hasError : ''}`}
-          {...register('expiryDate')}
+      <Form.Item label="Card Type" validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
+        <Controller name="cardType" control={control}
+          render={({ field }) => <Select {...field} options={cardTypeOptions} size="large" />}
         />
-        {errors.expiryDate && <span className={styles.errorText}>{errors.expiryDate.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="currency" className={styles.label}>
-          Currency
-        </label>
-        <select id="currency" className={styles.input} {...register('currency')}>
-          {currencyOptions.map((c) => (
-            <option value={c} key={c}>
-              {CURRENCY_LABELS[c]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <span className={styles.label}>Color</span>
-        <div className={styles.colorGrid}>
-          {CARD_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              className={`${styles.colorSwatch} ${selectedColor === color ? styles.selected : ''}`}
-              style={{ backgroundColor: color }}
-              onClick={() => setValue('color', color)}
-              aria-label={color}
+      <Row gutter={12}>
+        <Col xs={24} sm={12}>
+          <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
+            <Controller name="last4Digits" control={control}
+              render={({ field }) => <Input {...field} maxLength={4} size="large" />}
             />
-          ))}
-        </div>
-      </div>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
+            <Controller name="expiryDate" control={control}
+              render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Form.Item label="Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+        <Controller name="currency" control={control}
+          render={({ field }) => <Select {...field} options={currencyOptions} size="large" />}
+        />
+      </Form.Item>
+
+      <ColorSwatchField
+        colors={CARD_COLORS}
+        selected={selectedColor}
+        onSelect={(c) => setValue('color', c)}
+      />
 
       {cardCategory === CardCategory.Credit && (
-        <div className={styles.field}>
-          <label htmlFor="creditLimit" className={styles.label}>
-            Credit limit
-          </label>
-          <input
-            id="creditLimit"
-            type="number"
-            step="0.01"
-            min="0"
-            className={`${styles.input} ${errors.creditLimit ? styles.hasError : ''}`}
-            {...register('creditLimit')}
+        <Form.Item label="Credit Limit" validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
+          <Controller name="creditLimit" control={control}
+            render={({ field }) => (
+              <InputNumber {...field} value={field.value ?? undefined} prefix="$" min={0} step={0.01} size="large" className={styles.inputFull} />
+            )}
           />
-          {errors.creditLimit && <span className={styles.errorText}>{errors.creditLimit.message}</span>}
-        </div>
+        </Form.Item>
       )}
 
       {cardCategory === CardCategory.Debit && (
-        <div className={styles.field}>
-          <label htmlFor="linkedAccountId" className={styles.label}>
-            Linked account
-          </label>
-          <select id="linkedAccountId" className={styles.input} {...register('linkedAccountId')}>
-            <option value="">No linked account</option>
-            {(accounts ?? []).map((a) => (
-              <option value={a.id} key={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Form.Item label="Linked Account">
+          <Controller name="linkedAccountId" control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                value={field.value ?? undefined}
+                options={[{ label: 'No linked account', value: '' }, ...accountOptions]}
+                size="large"
+              />
+            )}
+          />
+        </Form.Item>
       )}
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </button>
-    </form>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Saving…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

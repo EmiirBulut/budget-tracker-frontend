@@ -1,16 +1,19 @@
 import {
+  BarChartOutlined,
   CreditCardOutlined,
   DashboardOutlined,
-  FundProjectionScreenOutlined,
+  ScheduleOutlined,
   SettingOutlined,
   SwapOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Menu } from 'antd'
+import { Menu, Typography } from 'antd'
 import type { MenuProps } from 'antd'
 import { Link, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../router/routes'
 import styles from './Sidebar.module.css'
+
+const { Text } = Typography
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -37,12 +40,12 @@ const menuItems: MenuItem[] = [
   },
   {
     key: ROUTES.INSTALLMENTS,
-    icon: <FundProjectionScreenOutlined />,
+    icon: <ScheduleOutlined />,
     label: <Link to={ROUTES.INSTALLMENTS}>Installments</Link>,
   },
   {
     key: ROUTES.REPORTS,
-    icon: <FundProjectionScreenOutlined />,
+    icon: <BarChartOutlined />,
     label: <Link to={ROUTES.REPORTS}>Reports</Link>,
   },
   {
@@ -52,17 +55,29 @@ const menuItems: MenuItem[] = [
   },
 ]
 
+function getSelectedKey(pathname: string): string {
+  if (pathname.startsWith(ROUTES.ACCOUNTS)) return ROUTES.ACCOUNTS
+  if (pathname.startsWith(ROUTES.CARDS)) return ROUTES.CARDS
+  if (pathname.startsWith(ROUTES.INSTALLMENTS)) return ROUTES.INSTALLMENTS
+  return pathname
+}
+
 function Sidebar() {
   const location = useLocation()
-  const selectedKey = location.pathname.startsWith(ROUTES.ACCOUNTS)
-    ? ROUTES.ACCOUNTS
-    : location.pathname
+  const selectedKey = getSelectedKey(location.pathname)
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.brand}>Budget Tracker</div>
-      <Menu mode="inline" selectedKeys={[selectedKey]} items={menuItems} className={styles.menu} />
-    </aside>
+    <>
+      <div className={styles.brand}>
+        <Text strong>Budget Tracker</Text>
+      </div>
+      <Menu
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        items={menuItems}
+        className={styles.menu}
+      />
+    </>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Alert, Empty, Skeleton } from 'antd'
+import { Alert, Card, Col, Empty, Row, Skeleton, Typography } from 'antd'
 import { useState } from 'react'
 import CategoryPieChart from '../features/reports/components/CategoryPieChart'
 import DateRangeSelector from '../features/reports/components/DateRangeSelector'
@@ -6,6 +6,8 @@ import MonthlyBarChart from '../features/reports/components/MonthlyBarChart'
 import ReportSummaryCards from '../features/reports/components/ReportSummaryCards'
 import { useReport } from '../features/reports/hooks/useReport'
 import styles from './ReportsPage.module.css'
+
+const { Title, Text } = Typography
 
 function toDateString(d: Date): string {
   return d.toISOString().split('T')[0]
@@ -36,10 +38,12 @@ function ReportsPage() {
 
   return (
     <main className={styles.page}>
-      <div>
-        <h1 className={styles.title}>Reports</h1>
-        <p className={styles.description}>Analyse income and expenses across any time period.</p>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={3} style={{ margin: 0 }}>Reports</Title>
+          <Text type="secondary">Analyse income and expenses across any time period.</Text>
+        </Col>
+      </Row>
 
       <DateRangeSelector from={from} to={to} onChange={handleRangeChange} />
 
@@ -57,25 +61,26 @@ function ReportsPage() {
         <>
           <ReportSummaryCards summary={data} />
 
-          <div className={styles.charts}>
-            <section className={styles.chartPanel}>
-              <h2 className={styles.chartTitle}>Spending by Category</h2>
-              {data.byCategory.length === 0 ? (
-                <Empty description="No category data" />
-              ) : (
-                <CategoryPieChart data={data.byCategory} />
-              )}
-            </section>
-
-            <section className={styles.chartPanel}>
-              <h2 className={styles.chartTitle}>Monthly Breakdown</h2>
-              {data.byMonth.length === 0 ? (
-                <Empty description="No monthly data" />
-              ) : (
-                <MonthlyBarChart data={data.byMonth} />
-              )}
-            </section>
-          </div>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <Card title="Spending by Category">
+                {data.byCategory.length === 0 ? (
+                  <Empty description="No category data" />
+                ) : (
+                  <CategoryPieChart data={data.byCategory} />
+                )}
+              </Card>
+            </Col>
+            <Col xs={24} md={12}>
+              <Card title="Monthly Breakdown">
+                {data.byMonth.length === 0 ? (
+                  <Empty description="No monthly data" />
+                ) : (
+                  <MonthlyBarChart data={data.byMonth} />
+                )}
+              </Card>
+            </Col>
+          </Row>
         </>
       )}
     </main>
