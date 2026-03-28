@@ -31,36 +31,34 @@ function InstallmentPlanDetailPage() {
   return (
     <div className={styles.page}>
       <Card className={styles.headerCard}>
-        <Row justify="space-between" align="top">
-          <Col>
+        <div className={styles.cardHeader}>
+          <div>
             <Title level={3} className={styles.headerName}>{plan.name}</Title>
             <Text className={styles.headerSub}>
               {plan.category} · Started {new Date(plan.startDate).toLocaleDateString()}
             </Text>
-          </Col>
-          <Col>
-            <Tag color="orange">{plan.numberOfMonths} months</Tag>
-          </Col>
-        </Row>
+          </div>
+          <Tag color="orange">{plan.numberOfMonths} months</Tag>
+        </div>
       </Card>
 
       <Row gutter={[16, 16]}>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card size="small">
             <Statistic title="Total Amount" value={formatTotalBalance(plan.totalAmount)} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card size="small">
             <Statistic title="Monthly Payment" value={formatTotalBalance(plan.monthlyPayment)} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card size="small">
             <Statistic title="Paid" value={`${paidCount} / ${plan.numberOfMonths}`} />
           </Card>
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card size="small">
             <Statistic title="Remaining" value={formatTotalBalance(Math.max(remainingAmount, 0))} />
           </Card>

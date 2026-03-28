@@ -146,14 +146,14 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
       </Form.Item>
 
       <Row gutter={12}>
-        <Col span={12}>
+        <Col xs={24} sm={12}>
           <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
             <Controller name="last4Digits" control={control}
               render={({ field }) => <Input {...field} maxLength={4} placeholder="4532" size="large" />}
             />
           </Form.Item>
         </Col>
-        <Col span={12}>
+        <Col xs={24} sm={12}>
           <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
             <Controller name="expiryDate" control={control}
               render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}
@@ -242,14 +242,14 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
       </Form.Item>
 
       <Row gutter={12}>
-        <Col span={12}>
+        <Col xs={24} sm={12}>
           <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
             <Controller name="last4Digits" control={control}
               render={({ field }) => <Input {...field} maxLength={4} size="large" />}
             />
           </Form.Item>
         </Col>
-        <Col span={12}>
+        <Col xs={24} sm={12}>
           <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
             <Controller name="expiryDate" control={control}
               render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}

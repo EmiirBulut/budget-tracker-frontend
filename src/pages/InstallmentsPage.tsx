@@ -1,4 +1,4 @@
-import { Button, Col, Row, Typography } from 'antd'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
 import AddInstallmentPlanModal from '../features/installments/components/AddInstallmentPlanModal'
 import InstallmentPlanList from '../features/installments/components/InstallmentPlanList'
@@ -11,17 +11,15 @@ function InstallmentsPage() {
 
   return (
     <main className={styles.page}>
-      <Row justify="space-between" align="middle">
-        <Col>
+      <div className={styles.pageHeader}>
+        <div>
           <Title level={3} style={{ margin: 0 }}>Installments</Title>
           <Text type="secondary">Track installment plans and monthly payment schedules.</Text>
-        </Col>
-        <Col>
-          <Button type="primary" size="large" onClick={() => setIsAddOpen(true)}>
-            Create plan
-          </Button>
-        </Col>
-      </Row>
+        </div>
+        <Button type="primary" size="large" onClick={() => setIsAddOpen(true)}>
+          Create plan
+        </Button>
+      </div>
 
       <InstallmentPlanList />
 

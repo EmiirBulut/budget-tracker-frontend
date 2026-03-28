@@ -1,4 +1,4 @@
-import { Button, Row, Col, Typography } from 'antd'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
 import AddTransactionModal from '../features/transactions/components/AddTransactionModal'
 import TransactionFiltersBar from '../features/transactions/components/TransactionFiltersBar'
@@ -27,17 +27,15 @@ function TransactionsPage() {
 
   return (
     <main className={styles.page}>
-      <Row justify="space-between" align="middle">
-        <Col>
+      <div className={styles.pageHeader}>
+        <div>
           <Title level={3} style={{ margin: 0 }}>Transactions</Title>
           <Text type="secondary">Log and filter all income, expenses, and installments.</Text>
-        </Col>
-        <Col>
-          <Button type="primary" size="large" onClick={() => setIsAddOpen(true)}>
-            Add transaction
-          </Button>
-        </Col>
-      </Row>
+        </div>
+        <Button type="primary" size="large" onClick={() => setIsAddOpen(true)}>
+          Add transaction
+        </Button>
+      </div>
 
       <TransactionFiltersBar filters={filters} onFiltersChange={handleFiltersChange} />
 

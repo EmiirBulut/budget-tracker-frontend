@@ -25,3 +25,17 @@
   color: rgba(255, 255, 255, 0.8);
   font-size: 13px;
 }
+
+/* Header row: name/date left, tag right — stacks on mobile */
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (max-width: 575px) {
+  .cardHeader {
+    flex-direction: column;
+  }
+}

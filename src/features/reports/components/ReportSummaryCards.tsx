@@ -12,17 +12,17 @@ function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
 
   return (
     <Row gutter={[16, 16]}>
-      <Col xs={24} md={8}>
+      <Col xs={24} sm={12} md={8}>
         <Card size="small" className={styles.incomeCard}>
           <Statistic title="Total Income" value={formatTotalBalance(summary.totalIncome)} />
         </Card>
       </Col>
-      <Col xs={24} md={8}>
+      <Col xs={24} sm={12} md={8}>
         <Card size="small" className={styles.expenseCard}>
           <Statistic title="Total Expense" value={formatTotalBalance(summary.totalExpense)} />
         </Card>
       </Col>
-      <Col xs={24} md={8}>
+      <Col xs={24} sm={12} md={8}>
         <Card size="small" className={netClass}>
           <Statistic title="Net Balance" value={formatTotalBalance(summary.netBalance)} />
         </Card>

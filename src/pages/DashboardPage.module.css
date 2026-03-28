@@ -55,6 +55,12 @@
   height: 260px;
 }
 
+@media (max-width: 575px) {
+  .chartWrap {
+    height: 200px;
+  }
+}
+
 /* Colored transaction amounts */
 .incomeAmount {
   color: #16a34a;

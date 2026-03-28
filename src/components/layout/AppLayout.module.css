@@ -8,8 +8,31 @@
   border-bottom: 1px solid #f0f0f0;
   height: 64px;
   line-height: 64px;
+  gap: 8px;
+}
+
+.menuBtn {
+  flex-shrink: 0;
+}
+
+/* Push email to fill available space, sign-out button stays on the right */
+.userEmail {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .content {
   padding: 24px;
+}
+
+@media (max-width: 575px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .content {
+    padding: 16px 12px;
+  }
 }

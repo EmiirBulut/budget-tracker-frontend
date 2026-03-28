@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Col, Row, Typography } from 'antd'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
 import AddCardModal from '../features/cards/components/AddCardModal'
 import CardList from '../features/cards/components/CardList'
@@ -20,17 +20,15 @@ function CardsPage() {
 
   return (
     <main className={styles.page}>
-      <Row align="middle" justify="space-between">
-        <Col>
+      <div className={styles.pageHeader}>
+        <div>
           <Title level={3} style={{ marginBottom: 0 }}>Cards</Title>
           <Text type="secondary">Manage your credit and debit cards</Text>
-        </Col>
-        <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add Card
-          </Button>
-        </Col>
-      </Row>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
+          Add Card
+        </Button>
+      </div>
 
       <CardList onEdit={handleOpenEdit} />
 

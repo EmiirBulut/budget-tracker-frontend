@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Col, Row, Typography } from 'antd'
+import { Button, Typography } from 'antd'
 import { useState } from 'react'
 import AddAccountModal from '../features/accounts/components/AddAccountModal'
 import AccountList from '../features/accounts/components/AccountList'
@@ -20,17 +20,15 @@ function AccountsPage() {
 
   return (
     <main className={styles.page}>
-      <Row align="middle" justify="space-between">
-        <Col>
+      <div className={styles.pageHeader}>
+        <div>
           <Title level={3} style={{ marginBottom: 0 }}>Accounts</Title>
           <Text type="secondary">Manage your financial accounts</Text>
-        </Col>
-        <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add Account
-          </Button>
-        </Col>
-      </Row>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
+          Add Account
+        </Button>
+      </div>
 
       <AccountList onEdit={handleOpenEdit} />
 

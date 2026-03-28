@@ -43,27 +43,25 @@ function AccountDetailPage() {
 
       {/* Blue header card */}
       <Card className={styles.headerCard}>
-        <Row align="middle" justify="space-between">
-          <Col>
-            <Space align="center">
+        <div className={styles.cardHeader}>
+          <div>
+            <Space align="center" wrap>
               <Title level={4} className={styles.headerName}>{account.name}</Title>
               <Tag color="blue">{ACCOUNT_TYPE_LABELS[account.type]}</Tag>
               {account.isArchived && <Tag color="default">Archived</Tag>}
             </Space>
             <Text className={styles.headerSub}>{account.currency}</Text>
             <p className={styles.balanceAmount}>{formatBalance(account.balance, account.currency)}</p>
-          </Col>
-          <Col>
-            <Space>
-              <Button onClick={() => setIsEditOpen(true)} disabled={account.isArchived}>
-                Edit
-              </Button>
-              <Button danger loading={isArchiving} onClick={handleArchive} disabled={account.isArchived}>
-                Archive
-              </Button>
-            </Space>
-          </Col>
-        </Row>
+          </div>
+          <Space>
+            <Button onClick={() => setIsEditOpen(true)} disabled={account.isArchived}>
+              Edit
+            </Button>
+            <Button danger loading={isArchiving} onClick={handleArchive} disabled={account.isArchived}>
+              Archive
+            </Button>
+          </Space>
+        </div>
       </Card>
 
       {/* Income / Expense summary */}

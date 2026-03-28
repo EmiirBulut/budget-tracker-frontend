@@ -5,6 +5,21 @@
   gap: 16px;
 }
 
+/* Page title + action button row — stacks on mobile */
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (max-width: 575px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* Blue total balance banner — matches design token colorPrimary */
 .balanceBanner {
   background-color: #2563eb;
