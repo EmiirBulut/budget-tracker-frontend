@@ -1,0 +1,37 @@
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  background: var(--color-bg);
+}
+
+.mainArea {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.userEmail {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.content {
+  padding: 1.25rem;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

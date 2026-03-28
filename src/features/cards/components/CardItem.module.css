@@ -1,0 +1,65 @@
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.visual {
+  padding: 1rem 1.25rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 7rem;
+}
+
+.visualName {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.visualNumber {
+  font-size: 0.9375rem;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.visualRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.8125rem;
+  opacity: 0.85;
+}
+
+.body {
+  padding: 0.75rem 1rem;
+  display: grid;
+  gap: 0.625rem;
+}
+
+.tags {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.creditLimit {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.creditLimitValue {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

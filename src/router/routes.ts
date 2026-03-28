@@ -1,0 +1,15 @@
+export const ROUTES = {
+  DASHBOARD: '/',
+  ACCOUNTS: '/accounts',
+  ACCOUNT_DETAIL_PATTERN: '/accounts/:id',
+  ACCOUNT_DETAIL: (id: string) => `/accounts/${id}`,
+  CARDS: '/cards',
+  TRANSACTIONS: '/transactions',
+  INSTALLMENTS: '/installments',
+  INSTALLMENT_DETAIL_PATTERN: '/installments/:id',
+  INSTALLMENT_DETAIL: (id: string) => `/installments/${id}`,
+  REPORTS: '/reports',
+  SETTINGS: '/settings',
+  LOGIN: '/login',
+  REGISTER: '/register',
+} as const
