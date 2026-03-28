@@ -1,4 +1,10 @@
-import { Alert, Skeleton } from 'antd'
+import {
+  ArrowDownOutlined,
+  ArrowRightOutlined,
+  ArrowUpOutlined,
+  ScheduleOutlined,
+} from '@ant-design/icons'
+import { Alert, Card, Col, List, Row, Skeleton, Statistic, Tag, Typography } from 'antd'
 import { Link } from 'react-router-dom'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useAccounts } from '../features/accounts/hooks/useAccounts'
@@ -9,6 +15,10 @@ import { useTransactions } from '../features/transactions/hooks/useTransactions'
 import { formatBalance, formatTotalBalance } from '../lib/formatCurrency'
 import { ROUTES } from '../router/routes'
 import styles from './DashboardPage.module.css'
+
+const { Title, Text } = Typography
+
+const CHART_COLORS = ['#2563eb', '#7c3aed', '#059669', '#ea580c', '#dc2626', '#0891b2']
 
 function DashboardPage() {
   const { user } = useAuthStore()
@@ -24,8 +34,7 @@ function DashboardPage() {
   })
 
   const safeAccounts = accounts ?? []
-  const totalBalance = safeAccounts.reduce((total, account) => total + account.balance, 0)
-  const activeAccountsCount = safeAccounts.filter((account) => !account.isArchived).length
+  const totalBalance = safeAccounts.reduce((sum, a) => sum + a.balance, 0)
   const recentAccounts = safeAccounts.slice(0, 4)
   const recentTransactions = transactionsData?.items ?? []
 
@@ -34,127 +43,176 @@ function DashboardPage() {
     value: item.total,
   }))
 
-  const chartColors = ['#2563eb', '#7c3aed', '#059669', '#ea580c', '#dc2626', '#0891b2']
-
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Dashboard</h1>
-      <p className={styles.welcome}>Welcome, {user?.email}</p>
+      <div>
+        <Title level={4} style={{ marginBottom: 0 }}>Dashboard</Title>
+        <Text type="secondary">Welcome, {user?.email}</Text>
+      </div>
 
       {isAccountsError && (
-        <Alert type="warning" showIcon message="Accounts data is unavailable right now." className={styles.alert} />
+        <Alert type="warning" showIcon message="Accounts data is unavailable right now." />
       )}
 
-      <section className={styles.summaryGrid}>
-        <article className={styles.summaryCard}>
-          <h2 className={styles.summaryLabel}>Total Balance</h2>
-          <p className={styles.summaryValue}>{formatTotalBalance(totalBalance)}</p>
-        </article>
-        <article className={styles.summaryCard}>
-          <h2 className={styles.summaryLabel}>Active Accounts</h2>
-          <p className={styles.summaryValue}>{activeAccountsCount}</p>
-        </article>
-        <article className={styles.summaryCard}>
-          <h2 className={styles.summaryLabel}>This Month Income</h2>
-          <p className={styles.summaryValue}>{formatTotalBalance(report?.totalIncome ?? 0)}</p>
-        </article>
-        <article className={styles.summaryCard}>
-          <h2 className={styles.summaryLabel}>This Month Expense</h2>
-          <p className={styles.summaryValue}>{formatTotalBalance(report?.totalExpense ?? 0)}</p>
-        </article>
-      </section>
+      {/* Hero balance card */}
+      <Card className={styles.balanceCard}>
+        <Text className={styles.heroLabel}>Current Balance</Text>
+        <Title level={2} className={styles.heroAmount}>
+          {formatTotalBalance(totalBalance)}
+        </Title>
+        <Row gutter={12}>
+          <Col span={12}>
+            <Card className={styles.heroSubCard}>
+              <Text className={styles.heroSubLabel}>Income</Text>
+              <Title level={4} className={styles.heroSubAmount}>
+                {formatTotalBalance(report?.totalIncome ?? 0)}
+              </Title>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card className={styles.heroSubCard}>
+              <Text className={styles.heroSubLabel}>Expenses</Text>
+              <Title level={4} className={styles.heroSubAmount}>
+                {formatTotalBalance(report?.totalExpense ?? 0)}
+              </Title>
+            </Card>
+          </Col>
+        </Row>
+      </Card>
 
-      <section className={styles.grid}>
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Account Snapshot</h2>
-            <Link to={ROUTES.ACCOUNTS}>View all</Link>
-          </div>
+      {/* My Accounts */}
+      <Card
+        title={<Text strong>My Accounts</Text>}
+        extra={<Link to={ROUTES.ACCOUNTS}>View All →</Link>}
+        size="small"
+      >
+        {isAccountsLoading ? (
+          <Skeleton active paragraph={{ rows: 2 }} />
+        ) : recentAccounts.length === 0 ? (
+          <Text type="secondary">No accounts yet.</Text>
+        ) : (
+          <Row gutter={[12, 12]}>
+            {recentAccounts.map((account) => (
+              <Col key={account.id} xs={24} sm={12} md={6}>
+                <Link to={ROUTES.ACCOUNT_DETAIL(account.id)}>
+                  <Card size="small" hoverable className={styles.accountMiniCard}>
+                    <Text strong>{account.name}</Text>
+                    <br />
+                    <Tag color="blue">{ACCOUNT_TYPE_LABELS[account.type]}</Tag>
+                    <br />
+                    <Text type="secondary">Current Balance</Text>
+                    <br />
+                    <Text strong>{formatBalance(account.balance, account.currency)}</Text>
+                  </Card>
+                </Link>
+              </Col>
+            ))}
+          </Row>
+        )}
+      </Card>
 
-          {isAccountsLoading ? (
-            <Skeleton active paragraph={{ rows: 4 }} />
-          ) : recentAccounts.length === 0 ? (
-            <p className={styles.emptyText}>No accounts yet.</p>
-          ) : (
-            <ul className={styles.list}>
-              {recentAccounts.map((account) => (
-                <li key={account.id} className={styles.row}>
-                  <div>
-                    <Link to={ROUTES.ACCOUNT_DETAIL(account.id)} className={styles.rowTitle}>
-                      {account.name}
-                    </Link>
-                    <p className={styles.rowSub}>{ACCOUNT_TYPE_LABELS[account.type]}</p>
-                  </div>
-                  <span className={styles.rowAmount}>{formatBalance(account.balance, account.currency)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
+      {/* Stats row */}
+      <Row gutter={[12, 12]}>
+        <Col xs={24} sm={8}>
+          <Card size="small">
+            <Statistic
+              title="Total Expenses"
+              value={formatTotalBalance(report?.totalExpense ?? 0)}
+              prefix={<ArrowDownOutlined />}
+              valueStyle={{ color: '#dc2626' }}
+            />
+            <Text type="secondary">This month</Text>
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card size="small">
+            <Statistic
+              title="Total Income"
+              value={formatTotalBalance(report?.totalIncome ?? 0)}
+              prefix={<ArrowUpOutlined />}
+              valueStyle={{ color: '#16a34a' }}
+            />
+            <Text type="secondary">This month</Text>
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card size="small">
+            <Statistic
+              title="Upcoming"
+              value="—"
+              prefix={<ScheduleOutlined />}
+              valueStyle={{ color: '#f97316' }}
+            />
+            <Text type="secondary">Installments</Text>
+          </Card>
+        </Col>
+      </Row>
 
-        <article className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Recent Transactions</h2>
-            <Link to={ROUTES.TRANSACTIONS}>View all</Link>
-          </div>
+      {/* Charts + Recent Transactions */}
+      <Row gutter={[12, 12]}>
+        <Col xs={24} md={12}>
+          <Card title={<Text strong>Category Breakdown</Text>}>
+            {isReportLoading ? (
+              <Skeleton active paragraph={{ rows: 4 }} />
+            ) : chartData.length === 0 ? (
+              <Text type="secondary">No expenses yet this month.</Text>
+            ) : (
+              <div className={styles.chartWrap}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`slice-${entry.name}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => {
+                        const numericValue = typeof value === 'number' ? value : Number(value ?? 0)
+                        return formatTotalBalance(Number.isFinite(numericValue) ? numericValue : 0)
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </Card>
+        </Col>
 
-          {isTransactionsLoading ? (
-            <Skeleton active paragraph={{ rows: 4 }} />
-          ) : recentTransactions.length === 0 ? (
-            <p className={styles.emptyText}>No transactions available.</p>
-          ) : (
-            <ul className={styles.list}>
-              {recentTransactions.map((transaction) => (
-                <li key={transaction.id} className={styles.row}>
-                  <div>
-                    <p className={styles.rowTitle}>{transaction.category}</p>
-                    <p className={styles.rowSub}>{new Date(transaction.date).toLocaleDateString()}</p>
-                  </div>
-                  <span
-                    className={
-                      transaction.type === 'Income' ? styles.incomeAmount : styles.expenseAmount
+        <Col xs={24} md={12}>
+          <Card
+            title={<Text strong>Recent Transactions</Text>}
+            extra={<Link to={ROUTES.TRANSACTIONS}>View All <ArrowRightOutlined /></Link>}
+          >
+            {isTransactionsLoading ? (
+              <Skeleton active paragraph={{ rows: 5 }} />
+            ) : (
+              <List
+                dataSource={recentTransactions}
+                locale={{ emptyText: 'No transactions yet.' }}
+                renderItem={(transaction) => (
+                  <List.Item
+                    extra={
+                      <Text
+                        className={
+                          transaction.type === 'Income' ? styles.incomeAmount : styles.expenseAmount
+                        }
+                      >
+                        {transaction.type === 'Income' ? '+' : '-'}
+                        {formatTotalBalance(transaction.amount)}
+                      </Text>
                     }
                   >
-                    {transaction.type === 'Income' ? '+' : '-'}
-                    {formatTotalBalance(transaction.amount)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-      </section>
-
-      <section className={styles.panel}>
-        <div className={styles.panelHeader}>
-          <h2 className={styles.panelTitle}>Spending by Category (This Month)</h2>
-          <Link to={ROUTES.REPORTS}>Open reports</Link>
-        </div>
-
-        {isReportLoading ? (
-          <Skeleton active paragraph={{ rows: 4 }} />
-        ) : chartData.length === 0 ? (
-          <p className={styles.emptyText}>No category data for this month.</p>
-        ) : (
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`slice-${entry.name}`} fill={chartColors[index % chartColors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) => {
-                    const numericValue = typeof value === 'number' ? value : Number(value ?? 0)
-                    return formatTotalBalance(Number.isFinite(numericValue) ? numericValue : 0)
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </section>
+                    <List.Item.Meta
+                      title={<Text strong>{transaction.category}</Text>}
+                      description={new Date(transaction.date).toLocaleDateString()}
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
     </main>
   )
 }

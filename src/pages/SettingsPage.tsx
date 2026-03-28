@@ -1,24 +1,27 @@
+import { Card, Col, Row, Typography } from 'antd'
 import ChangePasswordForm from '../features/settings/components/ChangePasswordForm'
 import ProfileForm from '../features/settings/components/ProfileForm'
 import styles from './SettingsPage.module.css'
 
+const { Title, Text } = Typography
+
 function SettingsPage() {
   return (
     <main className={styles.page}>
-      <div>
-        <h1 className={styles.title}>Settings</h1>
-        <p className={styles.description}>Manage your profile and account security.</p>
-      </div>
+      <Row>
+        <Col>
+          <Title level={3} style={{ margin: 0 }}>Settings</Title>
+          <Text type="secondary">Manage your profile and account security.</Text>
+        </Col>
+      </Row>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Profile</h2>
+      <Card title="Profile">
         <ProfileForm />
-      </section>
+      </Card>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Change Password</h2>
+      <Card title="Change Password">
         <ChangePasswordForm />
-      </section>
+      </Card>
     </main>
   )
 }

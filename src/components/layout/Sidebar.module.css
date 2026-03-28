@@ -1,26 +1,11 @@
-.sidebar {
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
-  min-height: 100vh;
-  padding: 0.75rem;
-}
-
+/* Sidebar-level structural styles */
 .brand {
+  padding: 16px;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-primary);
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+  color: #2563eb;
 }
 
 .menu {
   border-inline-end: none !important;
-}
-
-@media (max-width: 960px) {
-  .sidebar {
-    min-height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-  }
 }

@@ -1,13 +1,18 @@
+import { Card, Typography } from 'antd'
 import RegisterForm from '../features/auth/components/RegisterForm'
 import styles from './RegisterPage.module.css'
+
+const { Title, Text } = Typography
 
 function RegisterPage() {
   return (
     <main className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Create an account</h1>
-        <p className={styles.subtitle}>Start tracking your finances today</p>
-        <RegisterForm />
+      <div className={styles.cardWrapper}>
+        <Card>
+          <Title level={3}>Create an account</Title>
+          <Text type="secondary">Start tracking your finances today</Text>
+          <RegisterForm />
+        </Card>
       </div>
     </main>
   )

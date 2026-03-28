@@ -1,7 +1,15 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, Form, Input, InputNumber, Select } from 'antd'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { AccountType, CURRENCY_LABELS, Currency, type CreateAccountRequest, type UpdateAccountRequest } from '../types/AccountTypes'
+import {
+  AccountType,
+  ACCOUNT_TYPE_LABELS,
+  CURRENCY_LABELS,
+  Currency,
+  type CreateAccountRequest,
+  type UpdateAccountRequest,
+} from '../types/AccountTypes'
 import styles from './AccountForm.module.css'
 
 const createAccountSchema = z.object({
@@ -40,29 +48,23 @@ interface EditProps extends BaseProps {
 
 type AccountFormProps = CreateProps | EditProps
 
-const accountTypeOptions = Object.values(AccountType)
-const currencyOptions = Object.values(Currency)
+const accountTypeOptions = Object.values(AccountType).map((t) => ({
+  label: ACCOUNT_TYPE_LABELS[t],
+  value: t,
+}))
+
+const currencyOptions = Object.values(Currency).map((c) => ({
+  label: CURRENCY_LABELS[c],
+  value: c,
+}))
 
 function AccountForm(props: AccountFormProps) {
-  if (props.mode === 'create') {
-    return <CreateAccountForm {...props} />
-  }
-
+  if (props.mode === 'create') return <CreateAccountForm {...props} />
   return <EditAccountForm {...props} />
 }
 
-function CreateAccountForm({
-  onSubmit,
-  isSubmitting,
-  apiErrorMessage,
-  submitLabel,
-  initialValues,
-}: CreateProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreateAccountFormValues>({
+function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: CreateProps) {
+  const { control, handleSubmit, formState: { errors } } = useForm<CreateAccountFormValues>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
       name: initialValues?.name ?? '',
@@ -73,120 +75,107 @@ function CreateAccountForm({
   })
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="name" className={styles.label}>
-          Name
-        </label>
-        <input id="name" className={`${styles.input} ${errors.name ? styles.hasError : ''}`} {...register('name')} />
-        {errors.name && <span className={styles.errorText}>{errors.name.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="type" className={styles.label}>
-          Account type
-        </label>
-        <select id="type" className={`${styles.input} ${errors.type ? styles.hasError : ''}`} {...register('type')}>
-          {accountTypeOptions.map((type) => (
-            <option value={type} key={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-        {errors.type && <span className={styles.errorText}>{errors.type.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="currency" className={styles.label}>
-          Currency
-        </label>
-        <select id="currency" className={`${styles.input} ${errors.currency ? styles.hasError : ''}`} {...register('currency')}>
-          {currencyOptions.map((currency) => (
-            <option value={currency} key={currency}>
-              {CURRENCY_LABELS[currency]}
-            </option>
-          ))}
-        </select>
-        {errors.currency && <span className={styles.errorText}>{errors.currency.message}</span>}
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="initialBalance" className={styles.label}>
-          Initial balance
-        </label>
-        <input
-          id="initialBalance"
-          type="number"
-          step="0.01"
-          className={`${styles.input} ${errors.initialBalance ? styles.hasError : ''}`}
-          {...register('initialBalance')}
+    <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
+      <Form.Item label="Account Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => <Input {...field} placeholder="e.g., Main Credit Card" size="large" />}
         />
-        {errors.initialBalance && <span className={styles.errorText}>{errors.initialBalance.message}</span>}
-      </div>
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      <Form.Item label="Account Type" validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => <Select {...field} options={accountTypeOptions} size="large" />}
+        />
+      </Form.Item>
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </button>
-    </form>
+      <Form.Item label="Default Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+        <Controller
+          name="currency"
+          control={control}
+          render={({ field }) => <Select {...field} options={currencyOptions} size="large" />}
+        />
+      </Form.Item>
+
+      <Form.Item label="Starting Balance (Optional)" validateStatus={errors.initialBalance ? 'error' : ''} help={errors.initialBalance?.message}>
+        <Controller
+          name="initialBalance"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              prefix="$"
+              min={0}
+              step={0.01}
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
+        />
+      </Form.Item>
+
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Saving…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 
 function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: EditProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<EditAccountFormValues>({
+  const { control, handleSubmit, formState: { errors } } = useForm<EditAccountFormValues>({
     resolver: zodResolver(editAccountSchema),
     defaultValues: initialValues,
   })
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="name" className={styles.label}>
-          Name
-        </label>
-        <input id="name" className={`${styles.input} ${errors.name ? styles.hasError : ''}`} {...register('name')} />
-        {errors.name && <span className={styles.errorText}>{errors.name.message}</span>}
-      </div>
+    <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
+      <Form.Item label="Account Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => <Input {...field} placeholder="e.g., Main Credit Card" size="large" />}
+        />
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="type" className={styles.label}>
-          Account type
-        </label>
-        <select id="type" className={`${styles.input} ${errors.type ? styles.hasError : ''}`} {...register('type')}>
-          {accountTypeOptions.map((type) => (
-            <option value={type} key={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-        {errors.type && <span className={styles.errorText}>{errors.type.message}</span>}
-      </div>
+      <Form.Item label="Account Type" validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => <Select {...field} options={accountTypeOptions} size="large" />}
+        />
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="currency" className={styles.label}>
-          Currency
-        </label>
-        <select id="currency" className={`${styles.input} ${errors.currency ? styles.hasError : ''}`} {...register('currency')}>
-          {currencyOptions.map((currency) => (
-            <option value={currency} key={currency}>
-              {CURRENCY_LABELS[currency]}
-            </option>
-          ))}
-        </select>
-        {errors.currency && <span className={styles.errorText}>{errors.currency.message}</span>}
-      </div>
+      <Form.Item label="Default Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+        <Controller
+          name="currency"
+          control={control}
+          render={({ field }) => <Select {...field} options={currencyOptions} size="large" />}
+        />
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </button>
-    </form>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Saving…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

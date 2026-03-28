@@ -1,10 +1,14 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, DatePicker, Form, Input, InputNumber, Select, Segmented, Typography } from 'antd'
+import dayjs from 'dayjs'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
 import { useCards } from '../../cards/hooks/useCards'
 import type { CreateTransactionRequest, TransactionType } from '../types/TransactionTypes'
 import styles from './TransactionForm.module.css'
+
+const { Text } = Typography
 
 const transactionSchema = z.object({
   type: z.enum(['Expense', 'Income', 'Installment'] as const),
@@ -25,7 +29,11 @@ interface TransactionFormProps {
   onSubmit: (data: CreateTransactionRequest) => void
 }
 
-const transactionTypeOptions: TransactionType[] = ['Expense', 'Income', 'Installment']
+const typeSegmentOptions: { label: string; value: TransactionType }[] = [
+  { label: 'Expense', value: 'Expense' },
+  { label: 'Income', value: 'Income' },
+  { label: 'Installment', value: 'Installment' },
+]
 
 function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel }: TransactionFormProps) {
   const { data: accounts } = useAccounts()
@@ -33,11 +41,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
 
   const today = new Date().toISOString().split('T')[0]
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TransactionFormValues>({
+  const { control, handleSubmit, formState: { errors } } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: 'Expense',
@@ -62,110 +66,131 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
     })
   }
 
+  const accountOptions = [
+    { label: 'None', value: '' },
+    ...(accounts ?? []).map((a) => ({ label: a.name, value: a.id })),
+  ]
+
+  const cardOptions = [
+    { label: 'None', value: '' },
+    ...(cards ?? []).map((c) => ({ label: `${c.name} (**** ${c.last4Digits})`, value: c.id })),
+  ]
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="type" className={styles.label}>
-          Type
-        </label>
-        <select id="type" className={styles.input} {...register('type')}>
-          {transactionTypeOptions.map((t) => (
-            <option value={t} key={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={styles.field}>
-        <label htmlFor="amount" className={styles.label}>
-          Amount
-        </label>
-        <input
-          id="amount"
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          className={`${styles.input} ${errors.amount ? styles.hasError : ''}`}
-          {...register('amount')}
+    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
+      <Form.Item label="Transaction Type">
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <Segmented
+              options={typeSegmentOptions}
+              value={field.value}
+              onChange={field.onChange}
+              block
+            />
+          )}
         />
-        {errors.amount && <span className={styles.errorText}>{errors.amount.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="category" className={styles.label}>
-          Category
-        </label>
-        <input
-          id="category"
-          placeholder="e.g. Food, Rent, Salary"
-          className={`${styles.input} ${errors.category ? styles.hasError : ''}`}
-          {...register('category')}
+      <Form.Item
+        label="Account"
+        extra={<Text type="secondary">Optional</Text>}
+      >
+        <Controller
+          name="accountId"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              value={field.value ?? ''}
+              options={accountOptions}
+              size="large"
+            />
+          )}
         />
-        {errors.category && <span className={styles.errorText}>{errors.category.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="description" className={styles.label}>
-          Description
-        </label>
-        <input
-          id="description"
-          placeholder="Optional note"
-          className={`${styles.input} ${errors.description ? styles.hasError : ''}`}
-          {...register('description')}
+      <Form.Item label="Amount" validateStatus={errors.amount ? 'error' : ''} help={errors.amount?.message}>
+        <Controller
+          name="amount"
+          control={control}
+          render={({ field }) => (
+            <InputNumber
+              {...field}
+              prefix="$"
+              min={0}
+              step={0.01}
+              placeholder="0.00"
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
         />
-        {errors.description && <span className={styles.errorText}>{errors.description.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="date" className={styles.label}>
-          Date
-        </label>
-        <input
-          id="date"
-          type="date"
-          className={`${styles.input} ${errors.date ? styles.hasError : ''}`}
-          {...register('date')}
+      <Form.Item label="Category" validateStatus={errors.category ? 'error' : ''} help={errors.category?.message}>
+        <Controller
+          name="category"
+          control={control}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g. Food, Rent, Salary" size="large" />
+          )}
         />
-        {errors.date && <span className={styles.errorText}>{errors.date.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="accountId" className={styles.label}>
-          Account <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>(optional)</span>
-        </label>
-        <select id="accountId" className={styles.input} {...register('accountId')}>
-          <option value="">None</option>
-          {(accounts ?? []).map((a) => (
-            <option value={a.id} key={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Form.Item label="Description" validateStatus={errors.description ? 'error' : ''} help={errors.description?.message}>
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <Input {...field} placeholder="Optional note" size="large" />
+          )}
+        />
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="cardId" className={styles.label}>
-          Card <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>(optional)</span>
-        </label>
-        <select id="cardId" className={styles.input} {...register('cardId')}>
-          <option value="">None</option>
-          {(cards ?? []).map((c) => (
-            <option value={c.id} key={c.id}>
-              {c.name} (**** {c.last4Digits})
-            </option>
-          ))}
-        </select>
-      </div>
+      <Form.Item label="Date" validateStatus={errors.date ? 'error' : ''} help={errors.date?.message}>
+        <Controller
+          name="date"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              value={field.value ? dayjs(field.value) : null}
+              onChange={(d) => field.onChange(d ? d.toISOString().split('T')[0] : '')}
+              size="large"
+              className={styles.inputFull}
+            />
+          )}
+        />
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      <Form.Item label="Card" extra={<Text type="secondary">Optional</Text>}>
+        <Controller
+          name="cardId"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              value={field.value ?? ''}
+              options={cardOptions}
+              size="large"
+            />
+          )}
+        />
+      </Form.Item>
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </button>
-    </form>
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+          {isSubmitting ? 'Saving…' : submitLabel}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

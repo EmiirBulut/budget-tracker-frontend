@@ -1,58 +1,36 @@
+/* Page vertical stack */
 .page {
-  display: grid;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--color-primary);
+/* Blue account header card — matches design token colorPrimary */
+.headerCard {
+  background-color: #2563eb;
+  border: none;
+  border-radius: 8px;
+}
+
+.headerCard :global(.ant-card-body) {
+  padding: 20px 24px;
+}
+
+/* Text overrides inside the blue header */
+.headerName {
   color: #fff;
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  margin: 0;
 }
 
-.title {
-  font-size: 1.5rem;
+.headerSub {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+}
+
+/* Balance text on the header */
+.balanceAmount {
+  color: #fff;
+  font-size: 28px;
   font-weight: 700;
-}
-
-.subtitle {
-  opacity: 0.9;
-  font-size: 0.875rem;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.summaryCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 1rem;
-}
-
-.balance {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 0.75rem;
-}
-
-.metaRow {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.placeholder {
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-  color: var(--color-text-secondary);
+  margin: 8px 0 0;
 }

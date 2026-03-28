@@ -1,10 +1,13 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { Alert, Button, Form, Input, Typography } from 'antd'
+import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import { useRegister } from '../hooks/useRegister'
+import { z } from 'zod'
 import { ROUTES } from '../../../router/routes'
+import { useRegister } from '../hooks/useRegister'
 import styles from './RegisterForm.module.css'
+
+const { Text } = Typography
 
 const registerSchema = z
   .object({
@@ -26,7 +29,7 @@ function RegisterForm() {
   const { mutate: submitRegister, isPending, isError, error } = useRegister()
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
@@ -40,64 +43,81 @@ function RegisterForm() {
   const apiErrorMessage = error?.response?.data?.error ?? 'Registration failed. Please try again.'
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="email" className={styles.label}>
-          Email address
-        </label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          className={`${styles.input} ${errors.email ? styles.hasError : ''}`}
-          {...register('email')}
+    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form} noValidate>
+      <Form.Item
+        label="Email address"
+        validateStatus={errors.email ? 'error' : ''}
+        help={errors.email?.message}
+      >
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              size="large"
+            />
+          )}
         />
-        {errors.email && <span className={styles.errorText}>{errors.email.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="password" className={styles.label}>
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="••••••••"
-          className={`${styles.input} ${errors.password ? styles.hasError : ''}`}
-          {...register('password')}
+      <Form.Item
+        label="Password"
+        validateStatus={errors.password ? 'error' : ''}
+        help={errors.password?.message}
+      >
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <Input.Password
+              {...field}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              size="large"
+            />
+          )}
         />
-        {errors.password && <span className={styles.errorText}>{errors.password.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="confirmPassword" className={styles.label}>
-          Confirm password
-        </label>
-        <input
-          id="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          placeholder="••••••••"
-          className={`${styles.input} ${errors.confirmPassword ? styles.hasError : ''}`}
-          {...register('confirmPassword')}
+      <Form.Item
+        label="Confirm password"
+        validateStatus={errors.confirmPassword ? 'error' : ''}
+        help={errors.confirmPassword?.message}
+      >
+        <Controller
+          name="confirmPassword"
+          control={control}
+          render={({ field }) => (
+            <Input.Password
+              {...field}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              size="large"
+            />
+          )}
         />
-        {errors.confirmPassword && (
-          <span className={styles.errorText}>{errors.confirmPassword.message}</span>
-        )}
-      </div>
+      </Form.Item>
 
-      {isError && <p className={styles.apiError}>{apiErrorMessage}</p>}
+      {isError && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isPending}>
-        {isPending ? 'Creating account…' : 'Create account'}
-      </button>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block size="large" loading={isPending}>
+          {isPending ? 'Creating account…' : 'Create account'}
+        </Button>
+      </Form.Item>
 
-      <p className={styles.switchLink}>
+      <Text type="secondary" className={styles.switchText}>
         Already have an account? <Link to={ROUTES.LOGIN}>Sign in</Link>
-      </p>
-    </form>
+      </Text>
+    </Form>
   )
 }
 

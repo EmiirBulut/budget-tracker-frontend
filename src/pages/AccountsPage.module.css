@@ -1,22 +1,30 @@
+/* Page vertical stack layout */
 .page {
-  display: grid;
-  gap: 1rem;
-}
-
-.header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
+/* Blue total balance banner — matches design token colorPrimary */
+.balanceBanner {
+  background-color: #2563eb;
+  border: none;
+  border-radius: 8px;
+  padding: 20px 24px;
 }
 
-.description {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
+.bannerLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  display: block;
+}
+
+.bannerAmount {
+  color: #fff;
+  margin: 4px 0 2px;
+}
+
+.bannerMeta {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
 }
