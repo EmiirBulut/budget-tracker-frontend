@@ -1,5 +1,6 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, Form, Input } from 'antd'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useChangePassword } from '../hooks/useChangePassword'
 import styles from './ProfileForm.module.css'
@@ -20,12 +21,7 @@ type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>
 function ChangePasswordForm() {
   const { mutate, isPending, isError, isSuccess, error, reset } = useChangePassword()
 
-  const {
-    register,
-    handleSubmit,
-    resetField,
-    formState: { errors },
-  } = useForm<ChangePasswordFormValues>({
+  const { control, handleSubmit, resetField, formState: { errors } } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmNewPassword: '' },
   })
@@ -49,56 +45,55 @@ function ChangePasswordForm() {
     : undefined
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="currentPassword" className={styles.label}>
-          Current password
-        </label>
-        <input
-          id="currentPassword"
-          type="password"
-          autoComplete="current-password"
-          className={`${styles.input} ${errors.currentPassword ? styles.hasError : ''}`}
-          {...register('currentPassword')}
+    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
+      <Form.Item label="Current password" validateStatus={errors.currentPassword ? 'error' : ''} help={errors.currentPassword?.message}>
+        <Controller
+          name="currentPassword"
+          control={control}
+          render={({ field }) => (
+            <Input.Password {...field} autoComplete="current-password" size="large" />
+          )}
         />
-        {errors.currentPassword && <span className={styles.errorText}>{errors.currentPassword.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="newPassword" className={styles.label}>
-          New password
-        </label>
-        <input
-          id="newPassword"
-          type="password"
-          autoComplete="new-password"
-          className={`${styles.input} ${errors.newPassword ? styles.hasError : ''}`}
-          {...register('newPassword')}
+      <Form.Item label="New password" validateStatus={errors.newPassword ? 'error' : ''} help={errors.newPassword?.message}>
+        <Controller
+          name="newPassword"
+          control={control}
+          render={({ field }) => (
+            <Input.Password {...field} autoComplete="new-password" size="large" />
+          )}
         />
-        {errors.newPassword && <span className={styles.errorText}>{errors.newPassword.message}</span>}
-      </div>
+      </Form.Item>
 
-      <div className={styles.field}>
-        <label htmlFor="confirmNewPassword" className={styles.label}>
-          Confirm new password
-        </label>
-        <input
-          id="confirmNewPassword"
-          type="password"
-          autoComplete="new-password"
-          className={`${styles.input} ${errors.confirmNewPassword ? styles.hasError : ''}`}
-          {...register('confirmNewPassword')}
+      <Form.Item label="Confirm new password" validateStatus={errors.confirmNewPassword ? 'error' : ''} help={errors.confirmNewPassword?.message}>
+        <Controller
+          name="confirmNewPassword"
+          control={control}
+          render={({ field }) => (
+            <Input.Password {...field} autoComplete="new-password" size="large" />
+          )}
         />
-        {errors.confirmNewPassword && <span className={styles.errorText}>{errors.confirmNewPassword.message}</span>}
-      </div>
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
-      {isSuccess && <p className={styles.successMessage}>Password changed successfully.</p>}
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isPending}>
-        {isPending ? 'Changing…' : 'Change password'}
-      </button>
-    </form>
+      {isSuccess && (
+        <Form.Item>
+          <Alert message="Password changed successfully." type="success" showIcon />
+        </Form.Item>
+      )}
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={isPending}>
+          {isPending ? 'Changing…' : 'Change password'}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

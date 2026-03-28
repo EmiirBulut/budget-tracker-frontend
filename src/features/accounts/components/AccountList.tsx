@@ -1,9 +1,8 @@
-import { Alert, Empty, Skeleton } from 'antd'
+import { Alert, Col, Empty, Row, Skeleton } from 'antd'
 import { useArchiveAccount } from '../hooks/useArchiveAccount'
 import { useAccounts } from '../hooks/useAccounts'
 import type { Account } from '../types/AccountTypes'
 import AccountCard from './AccountCard'
-import styles from './AccountList.module.css'
 
 interface AccountListProps {
   onEdit: (account: Account) => void
@@ -19,10 +18,10 @@ function AccountList({ onEdit }: AccountListProps) {
 
   if (isLoading) {
     return (
-      <div className={styles.grid}>
-        <Skeleton active paragraph={{ rows: 4 }} />
-        <Skeleton active paragraph={{ rows: 4 }} />
-      </div>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
+      </Row>
     )
   }
 
@@ -36,17 +35,18 @@ function AccountList({ onEdit }: AccountListProps) {
   }
 
   return (
-    <div className={styles.grid}>
+    <Row gutter={[16, 16]}>
       {data.map((account) => (
-        <AccountCard
-          key={account.id}
-          account={account}
-          onEdit={onEdit}
-          onArchive={handleArchive}
-          isArchiving={isArchiving}
-        />
+        <Col key={account.id} xs={24} sm={12}>
+          <AccountCard
+            account={account}
+            onEdit={onEdit}
+            onArchive={handleArchive}
+            isArchiving={isArchiving}
+          />
+        </Col>
       ))}
-    </div>
+    </Row>
   )
 }
 

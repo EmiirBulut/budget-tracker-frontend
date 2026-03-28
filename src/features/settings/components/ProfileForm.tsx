@@ -1,5 +1,6 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Alert, Button, Form, Input } from 'antd'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAuthStore } from '../../auth/store/authStore'
 import { useUpdateProfile } from '../hooks/useUpdateProfile'
@@ -16,11 +17,7 @@ function ProfileForm() {
   const { user } = useAuthStore()
   const { mutate, isPending, isError, isSuccess, error, reset } = useUpdateProfile()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ProfileFormValues>({
+  const { control, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: { email: user?.email ?? '' },
   })
@@ -35,27 +32,35 @@ function ProfileForm() {
     : undefined
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <div className={styles.field}>
-        <label htmlFor="email" className={styles.label}>
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          className={`${styles.input} ${errors.email ? styles.hasError : ''}`}
-          {...register('email')}
+    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
+      <Form.Item label="Email" validateStatus={errors.email ? 'error' : ''} help={errors.email?.message}>
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <Input {...field} type="email" size="large" />
+          )}
         />
-        {errors.email && <span className={styles.errorText}>{errors.email.message}</span>}
-      </div>
+      </Form.Item>
 
-      {apiErrorMessage && <p className={styles.apiError}>{apiErrorMessage}</p>}
-      {isSuccess && <p className={styles.successMessage}>Profile updated successfully.</p>}
+      {apiErrorMessage && (
+        <Form.Item>
+          <Alert message={apiErrorMessage} type="error" showIcon />
+        </Form.Item>
+      )}
 
-      <button type="submit" className={styles.submitButton} disabled={isPending}>
-        {isPending ? 'Saving…' : 'Save changes'}
-      </button>
-    </form>
+      {isSuccess && (
+        <Form.Item>
+          <Alert message="Profile updated successfully." type="success" showIcon />
+        </Form.Item>
+      )}
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={isPending}>
+          {isPending ? 'Saving…' : 'Save changes'}
+        </Button>
+      </Form.Item>
+    </Form>
   )
 }
 

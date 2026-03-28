@@ -1,10 +1,13 @@
-import { Button } from 'antd'
+import { Button, Layout, Typography } from 'antd'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { revokeToken } from '../../features/auth/api/authApi'
 import { useAuthStore } from '../../features/auth/store/authStore'
 import { ROUTES } from '../../router/routes'
 import Sidebar from './Sidebar'
 import styles from './AppLayout.module.css'
+
+const { Sider, Content } = Layout
+const { Text } = Typography
 
 function AppLayout() {
   const navigate = useNavigate()
@@ -24,20 +27,22 @@ function AppLayout() {
   }
 
   return (
-    <div className={styles.layout}>
-      <Sidebar />
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider width={220} theme="light">
+        <Sidebar />
+      </Sider>
 
-      <div className={styles.mainArea}>
+      <Layout>
         <header className={styles.header}>
-          <div className={styles.userEmail}>{user?.email}</div>
+          <Text type="secondary">{user?.email}</Text>
           <Button onClick={handleSignOut}>Sign out</Button>
         </header>
 
-        <section className={styles.content}>
+        <Content className={styles.content}>
           <Outlet />
-        </section>
-      </div>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   )
 }
 
