@@ -1,0 +1,340 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pageTitle {
+  margin-bottom: 0 !important;
+}
+
+/* ── Card visual (colored header) ─────────────────────── */
+.cardVisual {
+  border-radius: 8px;
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.visualCardType {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.visualTag {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+  font-size: 11px;
+}
+
+.visualIcon {
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.visualName {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 12px;
+  display: block;
+}
+
+.visualNumberSection {
+  margin-top: 20px;
+}
+
+.visualLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  display: block;
+}
+
+.visualNumber {
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.visualFooter {
+  margin-top: 20px;
+}
+
+.visualValue {
+  font-size: 15px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ── Stat cards ───────────────────────────────────────── */
+.statCard {
+  height: 100%;
+}
+
+.statHeader {
+  margin-bottom: 10px;
+}
+
+.statAvatarBalance {
+  background-color: #ffe4e6 !important;
+  color: #e11d48 !important;
+}
+
+.statAvatarLimit {
+  background-color: #dbeafe !important;
+  color: #2563eb !important;
+}
+
+.statAvatarAvailable {
+  background-color: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+.statAmount {
+  margin: 0 !important;
+}
+
+.statAmountGreen {
+  margin: 0 !important;
+  color: #16a34a !important;
+}
+
+/* ── Credit usage ─────────────────────────────────────── */
+.usageTitle {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.usageRow {
+  margin-bottom: 8px;
+}
+
+.usageFooter {
+  margin-top: 6px;
+}
+
+.usageFooterText {
+  font-size: 12px;
+}
+
+/* ── Debit: Linked account ────────────────────────────── */
+.linkedCard {
+  background-color: #eff6ff !important;
+  border-radius: 8px;
+}
+
+.linkedAvatar {
+  background-color: #dbeafe !important;
+  color: #2563eb !important;
+  flex-shrink: 0;
+}
+
+.linkedLabel {
+  font-size: 12px;
+  color: #2563eb;
+  display: block;
+}
+
+/* ── Debit: card balance ──────────────────────────────── */
+.balanceAmount {
+  margin: 0 !important;
+}
+
+/* ── Active installments ──────────────────────────────── */
+.installmentHeader {
+  margin-bottom: 16px;
+}
+
+.installmentIcon {
+  font-size: 16px;
+  color: #f59e0b;
+}
+
+.installmentTitle {
+  font-size: 15px;
+}
+
+.installmentCount {
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Plan item ────────────────────────────────────────── */
+.planItemBorder {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.planItem {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planAvatar {
+  background-color: #f5f5f5 !important;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.planCategory {
+  font-size: 12px;
+}
+
+.planMonthlyAmount {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.planMonthlyLabel {
+  font-size: 11px;
+}
+
+.planProgressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.planSmallLabel {
+  font-size: 12px;
+}
+
+.planStats {
+  margin-top: 4px;
+}
+
+.paidIcon {
+  color: #16a34a;
+  font-size: 13px;
+}
+
+.remainingIcon {
+  color: #f59e0b;
+  font-size: 13px;
+}
+
+.monthsIcon {
+  color: #2563eb;
+  font-size: 13px;
+}
+
+/* ── Month bubbles ────────────────────────────────────── */
+.monthBubbles {
+  margin-top: 4px;
+}
+
+.monthBubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.monthBubblePaid {
+  background-color: #22c55e;
+  color: #fff;
+}
+
+.monthBubbleCurrent {
+  background-color: #f59e0b;
+  color: #fff;
+}
+
+.monthBubbleFuture {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #8c8c8c;
+}
+
+/* ── Recent transactions ──────────────────────────────── */
+.viewAll {
+  color: #2563eb;
+}
+
+.txRow {
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.txRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.txAvatar {
+  background-color: #f5f5f5 !important;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.txName {
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.txDate {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.txAmountIncome {
+  color: #16a34a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.txAmountExpense {
+  color: #1a1a1a;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.txIconIncome {
+  color: #16a34a;
+  font-size: 12px;
+}
+
+.txIconExpense {
+  color: #e11d48;
+  font-size: 12px;
+}
+
+.txIconInstallment {
+  color: #f59e0b;
+  font-size: 12px;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 575px) {
+  .cardVisual {
+    padding: 16px;
+    min-height: 180px;
+  }
+
+  .visualName {
+    font-size: 18px;
+  }
+
+  .visualNumber {
+    font-size: 15px;
+  }
+
+  .monthBubble {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+}

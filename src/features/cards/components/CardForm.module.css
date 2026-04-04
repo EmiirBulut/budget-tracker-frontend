@@ -1,36 +1,169 @@
-/* Form top spacing */
 .form {
-  margin-top: 16px;
+  margin-top: 8px;
+  padding: 0 6px;
 }
 
-/* InputNumber needs explicit width — it has no block prop */
 .inputFull {
   width: 100%;
 }
 
-/* Color swatch row */
-.swatchRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.inputSuffix {
+  color: #bfbfbf;
 }
 
-/* Dynamic color swatches — CSS custom property set per-swatch for the accepted dynamic-color exception */
-.swatch {
-  width: 36px;
-  height: 36px;
+/* ── Card Category selector ──────────────────────────── */
+.catCard {
+  cursor: pointer;
+  text-align: center;
+}
+
+.catCard :global(.ant-card-body),
+.catCardSelected :global(.ant-card-body) {
+  padding: 20px 12px;
+}
+
+.catCardSelected {
+  cursor: pointer;
+  text-align: center;
+  border: 2px solid #2563eb !important;
+  background-color: #eff6ff !important;
+}
+
+.catIconCircle {
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
+  background: #f0f0f0;
+}
+
+.catIconCircleActive {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.catIcon {
+  font-size: 22px;
+  color: #8c8c8c;
+}
+
+.catIconActive {
+  font-size: 22px;
+  color: #fff;
+}
+
+.catTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #595959;
+}
+
+.catTitleActive {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2563eb;
+}
+
+.catDesc {
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── Linked Account selector ─────────────────────────── */
+.linkedAccountHint {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.required {
+  color: #ff4d4f;
+  font-size: 14px;
+}
+
+.noAccountsText {
+  text-align: center;
+  padding: 8px 0;
+  display: block;
+}
+
+.accountCard {
+  cursor: pointer;
+}
+
+.accountCard :global(.ant-card-body),
+.accountCardSelected :global(.ant-card-body) {
+  padding: 12px 16px;
+}
+
+.accountCardSelected {
+  cursor: pointer;
+  border: 2px solid #2563eb !important;
+  background-color: #eff6ff !important;
+}
+
+.accountIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ── Card Type selector ──────────────────────────────── */
+.typeCard {
+  cursor: pointer;
+}
+
+.typeCard :global(.ant-card-body),
+.typeCardSelected :global(.ant-card-body) {
+  padding: 10px 6px;
+}
+
+.typeCardSelected {
+  cursor: pointer;
+  border: 2px solid #2563eb !important;
+}
+
+.typeCardIcon {
+  font-size: 18px;
+  color: #595959;
+}
+
+.typeCardLabel {
+  font-size: 11px;
+  text-align: center;
+  color: #595959;
+  line-height: 1.3;
+}
+
+/* ── Color swatches (pill shape) ─────────────────────── */
+.swatch {
+  width: 68px;
+  height: 38px;
+  border-radius: 10px;
   background-color: var(--swatch-color);
   border: 3px solid transparent;
   cursor: pointer;
-  transition: transform 0.1s, border-color 0.1s;
+  transition: opacity 0.1s, border-color 0.15s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .swatch:hover {
-  transform: scale(1.15);
+  opacity: 0.85;
 }
 
 .swatchSelected {
   border-color: #111827;
-  transform: scale(1.15);
+}
+
+.swatchSelected::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #fff;
+  position: absolute;
 }

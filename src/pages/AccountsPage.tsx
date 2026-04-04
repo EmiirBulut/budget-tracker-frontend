@@ -1,39 +1,42 @@
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Typography } from 'antd'
+import { Button, Card, Flex, Typography } from 'antd'
 import { useState } from 'react'
 import AddAccountModal from '../features/accounts/components/AddAccountModal'
 import AccountList from '../features/accounts/components/AccountList'
-import EditAccountModal from '../features/accounts/components/EditAccountModal'
-import type { Account } from '../features/accounts/types/AccountTypes'
+import { useAccounts } from '../features/accounts/hooks/useAccounts'
+import { formatTotalBalance } from '../lib/formatCurrency'
 import styles from './AccountsPage.module.css'
 
 const { Title, Text } = Typography
 
 function AccountsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null)
+  const { data: accounts } = useAccounts()
 
-  const handleOpenAdd = (): void => setIsAddOpen(true)
-  const handleCloseAdd = (): void => setIsAddOpen(false)
-  const handleOpenEdit = (account: Account): void => setEditingAccount(account)
-  const handleCloseEdit = (): void => setEditingAccount(null)
+  const activeAccounts = accounts?.filter((a) => !a.isArchived) ?? []
+  const totalBalance = activeAccounts.reduce((sum, a) => sum + a.balance, 0)
 
   return (
     <main className={styles.page}>
-      <div className={styles.pageHeader}>
-        <div>
+      <Flex justify="space-between" align="center" className={styles.pageHeader}>
+        <Flex vertical gap={2}>
           <Title level={3} style={{ marginBottom: 0 }}>Accounts</Title>
           <Text type="secondary">Manage your financial accounts</Text>
-        </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
+        </Flex>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddOpen(true)}>
           Add Account
         </Button>
-      </div>
+      </Flex>
 
-      <AccountList onEdit={handleOpenEdit} />
+      <Card variant="borderless" className={styles.balanceBanner}>
+        <Text className={styles.bannerLabel}>Total Balance</Text>
+        <Title level={2} className={styles.bannerAmount}>{formatTotalBalance(totalBalance)}</Title>
+        <Text className={styles.bannerMeta}>{activeAccounts.length} Active Accounts</Text>
+      </Card>
 
-      <AddAccountModal isOpen={isAddOpen} onClose={handleCloseAdd} />
-      <EditAccountModal isOpen={editingAccount !== null} account={editingAccount} onClose={handleCloseEdit} />
+      <AccountList />
+
+      <AddAccountModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </main>
   )
 }

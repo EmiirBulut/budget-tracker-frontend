@@ -1,10 +1,35 @@
-/* Balance amount — primary color applied via class to avoid inline style */
-.balance {
-  font-size: 16px;
-  color: #2563eb;
-  font-weight: 600;
+.card {
+  height: 100%;
+}
+
+.cardHeader {
+  margin-bottom: 20px;
 }
 
 .typeIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.arrow {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.balanceLabel {
+  font-size: 13px;
+}
+
+.balanceAmount {
   font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.currencyTag {
+  background: #f0f0f0 !important;
+  color: #595959 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 500;
 }

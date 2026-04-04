@@ -24,13 +24,23 @@ function AddCardModal({ isOpen, onClose }: AddCardModalProps) {
     : undefined
 
   return (
-    <Modal title="Add Card" open={isOpen} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal
+      title="Add Card"
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      destroyOnHidden
+      centered
+      width="min(640px, 92vw)"
+      styles={{ body: { maxHeight: '80vh', overflowY: 'auto' } }}
+    >
       <CardForm
         mode="create"
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         apiErrorMessage={apiErrorMessage}
-        submitLabel="Create card"
+        submitLabel="Add Card"
+        onCancel={onClose}
       />
     </Modal>
   )

@@ -30,7 +30,7 @@ function AddAccountModal({ isOpen, onClose }: AddAccountModalProps) {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         apiErrorMessage={apiErrorMessage}
-        submitLabel="Create account"
+        submitLabel="Create Account"
       />
     </Modal>
   )

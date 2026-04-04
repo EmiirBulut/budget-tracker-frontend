@@ -1,26 +1,15 @@
 import { Alert, Col, Empty, Row, Skeleton } from 'antd'
-import { useArchiveCard } from '../hooks/useArchiveCard'
 import { useCards } from '../hooks/useCards'
-import type { Card } from '../types/CardTypes'
 import CardItem from './CardItem'
 
-interface CardListProps {
-  onEdit: (card: Card) => void
-}
-
-function CardList({ onEdit }: CardListProps) {
+function CardList() {
   const { data, isLoading, isError, error } = useCards()
-  const { mutate: archive, isPending: isArchiving } = useArchiveCard()
-
-  const handleArchive = (card: Card): void => {
-    archive(card.id)
-  }
 
   if (isLoading) {
     return (
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
-        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 4 }} /></Col>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 6 }} /></Col>
+        <Col xs={24} sm={12}><Skeleton active paragraph={{ rows: 6 }} /></Col>
       </Row>
     )
   }
@@ -38,7 +27,7 @@ function CardList({ onEdit }: CardListProps) {
     <Row gutter={[16, 16]}>
       {data.map((card) => (
         <Col key={card.id} xs={24} sm={12}>
-          <CardItem card={card} onEdit={onEdit} onArchive={handleArchive} isArchiving={isArchiving} />
+          <CardItem card={card} />
         </Col>
       ))}
     </Row>

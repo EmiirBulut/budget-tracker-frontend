@@ -23,6 +23,7 @@ export interface Card {
   expiryDate: string
   currency: Currency
   color: string
+  balance?: number
   creditLimit: number | null
   linkedAccountId: string | null
   isArchived: boolean
@@ -65,14 +66,10 @@ export const CARD_TYPE_LABELS: Record<CardType, string> = {
 }
 
 export const CARD_COLORS = [
-  '#1a1a2e',
-  '#16213e',
-  '#0f3460',
   '#2563eb',
   '#7c3aed',
   '#059669',
+  '#f59e0b',
   '#dc2626',
-  '#ea580c',
-  '#0891b2',
   '#374151',
 ]

@@ -1,14 +1,17 @@
-/* Page vertical stack */
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Blue account header card — matches design token colorPrimary */
+/* Page header */
+.pageTitle {
+  margin-bottom: 0 !important;
+}
+
+/* ── Blue account header card ─────────────────────────── */
 .headerCard {
-  background-color: #2563eb;
-  border: none;
+  background-color: #2563eb !important;
   border-radius: 8px;
 }
 
@@ -16,36 +19,115 @@
   padding: 20px 24px;
 }
 
-/* Header row: name/tags left, buttons right — stacks on mobile */
-.cardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.headerTop {
+  margin-bottom: 4px;
 }
 
-@media (max-width: 575px) {
-  .cardHeader {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-/* Text overrides inside the blue header */
-.headerName {
+.headerTypeIcon {
+  font-size: 36px;
   color: #fff;
-  margin: 0;
+  line-height: 1;
 }
 
-.headerSub {
+.headerName {
+  color: #fff !important;
+  margin: 0 !important;
+}
+
+.headerTypeTag {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+  width: fit-content;
+}
+
+.headerDivider {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  margin: 16px 0;
+}
+
+.headerBalanceLabel {
   color: rgba(255, 255, 255, 0.8);
   font-size: 13px;
 }
 
-/* Balance text on the header */
-.balanceAmount {
-  color: #fff;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 8px 0 0;
+.headerBalanceAmount {
+  color: #fff !important;
+  margin: 0 !important;
+}
+
+.currencyBadge {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+/* ── Income / Expense summary cards ───────────────────── */
+.summaryHeader {
+  margin-bottom: 8px;
+}
+
+.incomeAvatar {
+  background-color: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+.expenseAvatar {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.summaryAmount {
+  margin: 0 0 2px !important;
+  font-size: 22px !important;
+}
+
+.summaryPeriod {
+  font-size: 12px;
+}
+
+/* ── Recent transactions ──────────────────────────────── */
+.viewAll {
+  color: #2563eb;
+}
+
+.txRow {
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.txRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.txAvatar {
+  background-color: #f5f5f5 !important;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.txName {
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.txDate {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.txAmountIncome {
+  color: #16a34a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.txAmountExpense {
+  color: #1a1a1a;
+  font-weight: 500;
+  white-space: nowrap;
 }

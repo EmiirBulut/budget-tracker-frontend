@@ -1,6 +1,71 @@
-/* Page vertical stack layout */
+/* Page vertical stack */
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* ── Period selector ──────────────────────────────────── */
+.periodSelector {
+  display: inline-flex;
+  background: #f5f5f5;
+  border-radius: 100px;
+  padding: 4px;
+  gap: 2px;
+  align-self: flex-start;
+}
+
+.periodBtn {
+  border: none;
+  border-radius: 100px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s, color 0.1s;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.periodBtn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ── Stat cards ───────────────────────────────────────── */
+.statCard {
+  width: 100%;
+}
+
+.statLabel {
+  font-size: 13px;
+}
+
+.statAmount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.3;
+  margin: 4px 0 2px;
+}
+
+/* ── Transaction rows ─────────────────────────────────── */
+.txRow {
+  padding: 14px 20px;
+}
+
+.txAvatar {
+  flex-shrink: 0;
+}
+
+.txCategory {
+  font-size: 14px;
+}
+
+.txDate {
+  font-size: 12px;
+}
+
+.txAmount {
+  font-size: 14px;
+  white-space: nowrap;
 }

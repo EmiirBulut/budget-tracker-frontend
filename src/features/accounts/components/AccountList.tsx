@@ -1,20 +1,9 @@
 import { Alert, Col, Empty, Row, Skeleton } from 'antd'
-import { useArchiveAccount } from '../hooks/useArchiveAccount'
 import { useAccounts } from '../hooks/useAccounts'
-import type { Account } from '../types/AccountTypes'
 import AccountCard from './AccountCard'
 
-interface AccountListProps {
-  onEdit: (account: Account) => void
-}
-
-function AccountList({ onEdit }: AccountListProps) {
+function AccountList() {
   const { data, isLoading, isError, error } = useAccounts()
-  const { mutate: archive, isPending: isArchiving } = useArchiveAccount()
-
-  const handleArchive = (account: Account): void => {
-    archive(account.id)
-  }
 
   if (isLoading) {
     return (
@@ -38,12 +27,7 @@ function AccountList({ onEdit }: AccountListProps) {
     <Row gutter={[16, 16]}>
       {data.map((account) => (
         <Col key={account.id} xs={24} sm={12}>
-          <AccountCard
-            account={account}
-            onEdit={onEdit}
-            onArchive={handleArchive}
-            isArchiving={isArchiving}
-          />
+          <AccountCard account={account} />
         </Col>
       ))}
     </Row>

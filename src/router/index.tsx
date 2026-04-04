@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute'
 import AppLayout from '../components/layout/AppLayout'
 
 const InstallmentPlanDetailPage = lazy(() => import('../pages/InstallmentPlanDetailPage'))
+const CardDetailPage = lazy(() => import('../pages/CardDetailPage'))
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/RegisterPage'))
 const DashboardPage = lazy(() => import('../pages/DashboardPage'))
@@ -68,6 +69,14 @@ const router = createBrowserRouter([
             element: (
               <Suspense fallback={null}>
                 <CardsPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: ROUTES.CARD_DETAIL_PATTERN,
+            element: (
+              <Suspense fallback={null}>
+                <CardDetailPage />
               </Suspense>
             ),
           },
