@@ -8,7 +8,7 @@
   margin-bottom: 0 !important;
 }
 
-/* ── Monthly stat cards ───────────────────────────────── */
+/* ── Summary stat cards ───────────────────────────────── */
 .statCard {
   height: 100%;
 }
@@ -19,12 +19,13 @@
   margin-bottom: 6px;
 }
 
-.statAmountIncome {
+.statAmount {
   margin: 0 !important;
-  color: #16a34a !important;
+  font-size: 20px !important;
 }
 
-.statAmountExpense {
+.statAmountGreen {
   margin: 0 !important;
-  color: #dc2626 !important;
+  font-size: 20px !important;
+  color: #22c55e !important;
 }

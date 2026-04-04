@@ -1,1 +1,109 @@
-/* InstallmentPlanCard — fully expressed via Ant Design component props */
+.card {
+  width: 100%;
+}
+
+/* ── Plan header ──────────────────────────────────────── */
+.planAvatar {
+  background-color: #f5f5f5 !important;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.planName {
+  font-size: 15px;
+}
+
+.planCategory {
+  font-size: 13px;
+}
+
+.monthlyAmount {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.monthlyLabel {
+  font-size: 11px;
+}
+
+/* ── Progress ─────────────────────────────────────────── */
+.progressSection {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.smallLabel {
+  font-size: 12px;
+}
+
+/* ── Stats ────────────────────────────────────────────── */
+.statsRow {
+  margin-top: 12px;
+}
+
+.paidIcon {
+  color: #16a34a;
+  font-size: 13px;
+}
+
+.remainingIcon {
+  color: #f59e0b;
+  font-size: 13px;
+}
+
+.monthsIcon {
+  color: #2563eb;
+  font-size: 13px;
+}
+
+.statValue {
+  font-size: 14px;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Month bubbles ────────────────────────────────────── */
+.bubbles {
+  margin-top: 14px;
+}
+
+.bubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.bubblePaid {
+  background-color: #22c55e;
+  color: #fff;
+}
+
+.bubbleCurrent {
+  background-color: #f59e0b;
+  color: #fff;
+}
+
+.bubbleFuture {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #8c8c8c;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 575px) {
+  .bubble {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+}

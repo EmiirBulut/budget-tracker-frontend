@@ -52,6 +52,12 @@ export const ACCOUNT_TYPE_ICONS: Record<AccountType, string> = {
   [AccountType.EWallet]: '📱',
 }
 
+export const ACCOUNT_TYPE_TAG_COLORS: Record<AccountType, string> = {
+  [AccountType.BankAccount]: 'blue',
+  [AccountType.Cash]: 'green',
+  [AccountType.EWallet]: 'orange',
+}
+
 export const CURRENCY_LABELS: Record<Currency, string> = {
   [Currency.USD]: 'USD ($)',
   [Currency.EUR]: 'EUR (€)',

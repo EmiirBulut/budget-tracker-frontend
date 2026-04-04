@@ -24,12 +24,21 @@ function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProps) {
     : undefined
 
   return (
-    <Modal title="Add Transaction" open={isOpen} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal
+      title="Add Transaction"
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      destroyOnHidden
+      centered
+      width="min(560px, 92vw)"
+      styles={{ body: { maxHeight: '85vh', overflowY: 'auto' } }}
+    >
       <TransactionForm
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         apiErrorMessage={apiErrorMessage}
-        submitLabel="Add transaction"
+        submitLabel="Add Transaction"
       />
     </Modal>
   )

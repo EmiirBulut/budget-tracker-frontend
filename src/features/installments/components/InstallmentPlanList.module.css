@@ -1,1 +1,9 @@
-/* InstallmentPlanList — fully expressed via Ant Design component props */
+.groupDivider {
+  margin: 8px 0 12px !important;
+}
+
+.groupLabel {
+  font-size: 14px;
+  color: #595959;
+  font-weight: 500;
+}

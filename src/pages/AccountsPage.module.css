@@ -1,42 +1,34 @@
-/* Page vertical stack layout */
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Page title + action button row — stacks on mobile */
-.pageHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 @media (max-width: 575px) {
   .pageHeader {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
   }
 }
 
-/* Blue total balance banner — matches design token colorPrimary */
 .balanceBanner {
-  background-color: #2563eb;
-  border: none;
+  background-color: #2563eb !important;
   border-radius: 8px;
+}
+
+.balanceBanner :global(.ant-card-body) {
+  display: flex;
+  flex-direction: column;
   padding: 20px 24px;
 }
 
 .bannerLabel {
   color: rgba(255, 255, 255, 0.8);
   font-size: 13px;
-  display: block;
 }
 
 .bannerAmount {
-  color: #fff;
-  margin: 4px 0 2px;
+  color: #fff !important;
+  margin: 4px 0 2px !important;
 }
 
 .bannerMeta {

@@ -1,26 +1,59 @@
+import { RetweetOutlined } from '@ant-design/icons'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Alert, Button, DatePicker, Form, Input, InputNumber, Select, Segmented, Typography } from 'antd'
+import { Alert, Button, Col, DatePicker, Flex, Form, InputNumber, Row, Select, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
-import { useCards } from '../../cards/hooks/useCards'
-import type { CreateTransactionRequest, TransactionType } from '../types/TransactionTypes'
+import { ACCOUNT_TYPE_ICONS } from '../../accounts/types/AccountTypes'
+import { formatBalance } from '../../../lib/formatCurrency'
+import type { CreateTransactionRequest } from '../types/TransactionTypes'
 import styles from './TransactionForm.module.css'
 
 const { Text } = Typography
 
-const transactionSchema = z.object({
-  type: z.enum(['Expense', 'Income', 'Installment'] as const),
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
-  category: z.string().min(1, 'Category is required').max(100, 'Category is too long'),
-  description: z.string().max(500, 'Description is too long'),
-  date: z.string().min(1, 'Date is required'),
+// ── Schema ────────────────────────────────────────────────────────────────────
+
+const formSchema = z.object({
+  type: z.enum(['Expense', 'Income'] as const),
   accountId: z.string().nullable().optional(),
-  cardId: z.string().nullable().optional(),
+  amount: z.coerce.number().positive('Amount must be greater than 0'),
+  category: z.string().min(1, 'Please select a category'),
+  date: z.string().min(1, 'Date is required'),
 })
 
-type TransactionFormValues = z.infer<typeof transactionSchema>
+type FormValues = z.infer<typeof formSchema>
+
+// ── Category definitions ──────────────────────────────────────────────────────
+
+interface CategoryOption {
+  label: string
+  emoji: string
+}
+
+const EXPENSE_CATEGORIES: CategoryOption[] = [
+  { label: 'Food', emoji: '🍔' },
+  { label: 'Transportation', emoji: '🚗' },
+  { label: 'Shopping', emoji: '🛍️' },
+  { label: 'Entertainment', emoji: '🎬' },
+  { label: 'Bills', emoji: '💡' },
+  { label: 'Healthcare', emoji: '💊' },
+  { label: 'Other', emoji: '📝' },
+]
+
+const INCOME_CATEGORIES: CategoryOption[] = [
+  { label: 'Salary', emoji: '💼' },
+  { label: 'Freelance', emoji: '💻' },
+  { label: 'Investment', emoji: '📈' },
+]
+
+// Type-specific accent colors
+const TYPE_COLORS: Record<'Expense' | 'Income', string> = {
+  Expense: '#f59e0b',
+  Income: '#22c55e',
+}
+
+// ── Props ─────────────────────────────────────────────────────────────────────
 
 interface TransactionFormProps {
   isSubmitting: boolean
@@ -29,154 +62,214 @@ interface TransactionFormProps {
   onSubmit: (data: CreateTransactionRequest) => void
 }
 
-const typeSegmentOptions: { label: string; value: TransactionType }[] = [
-  { label: 'Expense', value: 'Expense' },
-  { label: 'Income', value: 'Income' },
-  { label: 'Installment', value: 'Installment' },
-]
+// ── TransactionForm ───────────────────────────────────────────────────────────
 
 function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel }: TransactionFormProps) {
   const { data: accounts } = useAccounts()
-  const { data: cards } = useCards()
 
   const today = new Date().toISOString().split('T')[0]
 
-  const { control, handleSubmit, formState: { errors } } = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionSchema),
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       type: 'Expense',
+      accountId: null,
       amount: undefined,
       category: '',
-      description: '',
       date: today,
-      accountId: null,
-      cardId: null,
     },
   })
 
-  const handleFormSubmit = (values: TransactionFormValues): void => {
+  const selectedType = watch('type')
+  const selectedAccountId = watch('accountId')
+
+  const categories = selectedType === 'Income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+  const catColSpan = selectedType === 'Income' ? 8 : 6
+  const accentColor = TYPE_COLORS[selectedType]
+
+  const activeAccount = (accounts ?? []).find((a) => a.id === selectedAccountId)
+
+  const handleTypeChange = (type: 'Expense' | 'Income'): void => {
+    setValue('type', type)
+    setValue('category', '')
+  }
+
+  const handleFormSubmit = (values: FormValues): void => {
     onSubmit({
       type: values.type,
       amount: values.amount,
       category: values.category,
-      description: values.description,
+      description: values.category,
       date: new Date(values.date).toISOString(),
-      accountId: values.accountId || null,
-      cardId: values.cardId || null,
+      accountId: values.accountId ?? null,
+      cardId: null,
     })
   }
 
-  const accountOptions = [
-    { label: 'None', value: '' },
-    ...(accounts ?? []).map((a) => ({ label: a.name, value: a.id })),
-  ]
-
-  const cardOptions = [
-    { label: 'None', value: '' },
-    ...(cards ?? []).map((c) => ({ label: `${c.name} (**** ${c.last4Digits})`, value: c.id })),
-  ]
+  const accountOptions = (accounts ?? [])
+    .filter((a) => !a.isArchived)
+    .map((a) => ({ label: `${a.name} (${a.currency})`, value: a.id }))
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
-      <Form.Item label="Transaction Type">
-        <Controller
-          name="type"
-          control={control}
-          render={({ field }) => (
-            <Segmented
-              options={typeSegmentOptions}
-              value={field.value}
-              onChange={field.onChange}
-              block
-            />
-          )}
-        />
+    <Form layout="vertical" colon={false} onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
+
+      {/* ── Transaction Type ── */}
+      <Form.Item label={<Text className={styles.fieldLabel}>Transaction Type</Text>}>
+        <div className={styles.typeSelector}>
+          {(['Expense', 'Income'] as const).map((type) => {
+            const isActive = selectedType === type
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => handleTypeChange(type)}
+                className={styles.typeOption}
+                style={{
+                  color: isActive ? '#1a1a1a' : TYPE_COLORS[type],
+                  background: isActive ? '#fff' : 'transparent',
+                  boxShadow: isActive ? '0 1px 6px rgba(0,0,0,0.12)' : 'none',
+                  fontWeight: isActive ? 600 : 400,
+                }}
+              >
+                {type}
+              </button>
+            )
+          })}
+        </div>
       </Form.Item>
 
-      <Form.Item
-        label="Account"
-        extra={<Text type="secondary">Optional</Text>}
-      >
+      {/* ── Account ── */}
+      <Form.Item label={<Text className={styles.fieldLabel}>Account</Text>}>
         <Controller
           name="accountId"
           control={control}
           render={({ field }) => (
             <Select
-              {...field}
-              value={field.value ?? ''}
+              value={field.value ?? undefined}
               options={accountOptions}
-              size="large"
+              placeholder="Select account"
+              className={styles.accountSelect}
+              allowClear
+              onChange={(val) => field.onChange(val ?? null)}
             />
           )}
         />
+        {activeAccount && (
+          <div className={styles.accountDetail}>
+            <Flex justify="space-between" align="center">
+              <Flex align="center" gap={10}>
+                <Text className={styles.accountDetailIcon}>
+                  {ACCOUNT_TYPE_ICONS[activeAccount.type]}
+                </Text>
+                <Flex vertical gap={1}>
+                  <Text strong className={styles.accountDetailName}>{activeAccount.name}</Text>
+                  <Text type="secondary" className={styles.accountDetailType}>Account</Text>
+                </Flex>
+              </Flex>
+              <Flex vertical align="flex-end" gap={1}>
+                <Text strong className={styles.accountDetailBalance}>
+                  {formatBalance(activeAccount.balance, activeAccount.currency)}
+                </Text>
+                <Text type="secondary" className={styles.accountDetailCurrency}>
+                  {activeAccount.currency}
+                </Text>
+              </Flex>
+            </Flex>
+          </div>
+        )}
       </Form.Item>
 
-      <Form.Item label="Amount" validateStatus={errors.amount ? 'error' : ''} help={errors.amount?.message}>
+      {/* ── Amount ── */}
+      <Form.Item
+        label={<Text className={styles.fieldLabel}>Amount</Text>}
+        validateStatus={errors.amount ? 'error' : ''}
+        help={errors.amount?.message}
+      >
         <Controller
           name="amount"
           control={control}
           render={({ field }) => (
             <InputNumber
               {...field}
-              prefix="$"
+              value={field.value ?? undefined}
+              prefix={<Text type="secondary" className={styles.amountPrefix}>$</Text>}
               min={0}
               step={0.01}
               placeholder="0.00"
               size="large"
-              className={styles.inputFull}
+              className={styles.amountInput}
             />
           )}
         />
       </Form.Item>
 
-      <Form.Item label="Category" validateStatus={errors.category ? 'error' : ''} help={errors.category?.message}>
+      {/* ── Category grid ── */}
+      <Form.Item
+        label={<Text className={styles.fieldLabel}>Category</Text>}
+        validateStatus={errors.category ? 'error' : ''}
+        help={errors.category?.message}
+      >
         <Controller
           name="category"
           control={control}
           render={({ field }) => (
-            <Input {...field} placeholder="e.g. Food, Rent, Salary" size="large" />
+            <Row gutter={[8, 8]}>
+              {categories.map(({ label, emoji }) => {
+                const isSelected = field.value === label
+                return (
+                  <Col span={catColSpan} key={label}>
+                    <button
+                      type="button"
+                      className={styles.catCard}
+                      style={{
+                        borderColor: isSelected ? '#2563eb' : '#e8e8e8',
+                        background: isSelected ? '#eff6ff' : '#fff',
+                      }}
+                      onClick={() => field.onChange(label)}
+                    >
+                      <Text className={styles.catEmoji}>{emoji}</Text>
+                      <Text
+                        className={styles.catLabel}
+                        style={{ color: accentColor }}
+                      >
+                        {label}
+                      </Text>
+                    </button>
+                  </Col>
+                )
+              })}
+            </Row>
           )}
         />
       </Form.Item>
 
-      <Form.Item label="Description" validateStatus={errors.description ? 'error' : ''} help={errors.description?.message}>
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <Input {...field} placeholder="Optional note" size="large" />
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item label="Date" validateStatus={errors.date ? 'error' : ''} help={errors.date?.message}>
+      {/* ── Date ── */}
+      <Form.Item
+        label={<Text className={styles.fieldLabel}>Date</Text>}
+        validateStatus={errors.date ? 'error' : ''}
+        help={errors.date?.message}
+      >
         <Controller
           name="date"
           control={control}
           render={({ field }) => (
             <DatePicker
               value={field.value ? dayjs(field.value) : null}
-              onChange={(d) => field.onChange(d ? d.toISOString().split('T')[0] : '')}
+              onChange={(d) => field.onChange(d ? d.format('YYYY-MM-DD') : '')}
               size="large"
-              className={styles.inputFull}
+              format="MM/DD/YYYY"
+              className={styles.datePicker}
             />
           )}
         />
       </Form.Item>
 
-      <Form.Item label="Card" extra={<Text type="secondary">Optional</Text>}>
-        <Controller
-          name="cardId"
-          control={control}
-          render={({ field }) => (
-            <Select
-              {...field}
-              value={field.value ?? ''}
-              options={cardOptions}
-              size="large"
-            />
-          )}
-        />
+      {/* ── Recurrence ── */}
+      <Form.Item label={<Text className={styles.fieldLabel}>Recurrence</Text>}>
+        <div className={styles.recurrenceField}>
+          <RetweetOutlined className={styles.recurrenceIcon} />
+          <Text>One time</Text>
+        </div>
       </Form.Item>
 
       {apiErrorMessage && (
@@ -185,8 +278,16 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
         </Form.Item>
       )}
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
+      {/* ── Submit ── */}
+      <Form.Item style={{ marginBottom: 0, marginTop: 8 }}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          size="large"
+          loading={isSubmitting}
+          className={styles.submitBtn}
+        >
           {isSubmitting ? 'Saving…' : submitLabel}
         </Button>
       </Form.Item>

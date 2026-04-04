@@ -4,6 +4,8 @@ export const ROUTES = {
   ACCOUNT_DETAIL_PATTERN: '/accounts/:id',
   ACCOUNT_DETAIL: (id: string) => `/accounts/${id}`,
   CARDS: '/cards',
+  CARD_DETAIL_PATTERN: '/cards/:id',
+  CARD_DETAIL: (id: string) => `/cards/${id}`,
   TRANSACTIONS: '/transactions',
   INSTALLMENTS: '/installments',
   INSTALLMENT_DETAIL_PATTERN: '/installments/:id',

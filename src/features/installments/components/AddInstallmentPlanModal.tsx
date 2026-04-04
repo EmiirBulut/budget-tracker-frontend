@@ -24,7 +24,16 @@ function AddInstallmentPlanModal({ isOpen, onClose }: AddInstallmentPlanModalPro
     : undefined
 
   return (
-    <Modal title="Create Installment Plan" open={isOpen} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal
+      title="Create Installment Plan"
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      destroyOnHidden
+      centered
+      width="min(560px, 92vw)"
+      styles={{ body: { maxHeight: '85vh', overflowY: 'auto' } }}
+    >
       <InstallmentPlanForm
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -32,7 +32,7 @@ function EditCardModal({ isOpen, card, onClose }: EditCardModalProps) {
     : undefined
 
   return (
-    <Modal title="Edit Card" open={isOpen} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal title="Edit Card" open={isOpen} onCancel={onClose} footer={null} destroyOnHidden centered width="min(640px, 92vw)" styles={{ body: { maxHeight: '80vh', overflowY: 'auto' } }}>
       {card && (
         <CardForm
           mode="edit"
@@ -40,7 +40,8 @@ function EditCardModal({ isOpen, card, onClose }: EditCardModalProps) {
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           apiErrorMessage={apiErrorMessage}
-          submitLabel="Save changes"
+          submitLabel="Save Changes"
+          onCancel={onClose}
           initialValues={{
             name: card.name,
             cardType: card.cardType,

@@ -1,5 +1,7 @@
+import { AppstoreOutlined, BankOutlined, DollarCircleOutlined, MobileOutlined } from '@ant-design/icons'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Alert, Button, Form, Input, InputNumber, Select } from 'antd'
+import { Alert, Button, Card, Col, Flex, Form, Input, InputNumber, Row, Select, Typography } from 'antd'
+import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {
@@ -11,6 +13,8 @@ import {
   type UpdateAccountRequest,
 } from '../types/AccountTypes'
 import styles from './AccountForm.module.css'
+
+const { Text } = Typography
 
 const createAccountSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
@@ -48,15 +52,42 @@ interface EditProps extends BaseProps {
 
 type AccountFormProps = CreateProps | EditProps
 
-const accountTypeOptions = Object.values(AccountType).map((t) => ({
-  label: ACCOUNT_TYPE_LABELS[t],
-  value: t,
-}))
+const accountTypeIcons: Record<AccountType, ReactNode> = {
+  [AccountType.BankAccount]: <BankOutlined />,
+  [AccountType.Cash]: <DollarCircleOutlined />,
+  [AccountType.EWallet]: <MobileOutlined />,
+}
 
 const currencyOptions = Object.values(Currency).map((c) => ({
   label: CURRENCY_LABELS[c],
   value: c,
 }))
+
+interface TypeSelectorProps {
+  value: AccountType
+  onChange: (value: AccountType) => void
+}
+
+function TypeSelector({ value, onChange }: TypeSelectorProps) {
+  return (
+    <Row gutter={[12, 12]}>
+      {Object.values(AccountType).map((type) => (
+        <Col span={12} key={type}>
+          <Card
+            hoverable
+            className={value === type ? styles.typeCardSelected : styles.typeCard}
+            onClick={() => onChange(type)}
+          >
+            <Flex align="center" gap={12}>
+              <Text className={styles.typeCardIcon}>{accountTypeIcons[type]}</Text>
+              <Text>{ACCOUNT_TYPE_LABELS[type]}</Text>
+            </Flex>
+          </Card>
+        </Col>
+      ))}
+    </Row>
+  )
+}
 
 function AccountForm(props: AccountFormProps) {
   if (props.mode === 'create') return <CreateAccountForm {...props} />
@@ -88,7 +119,9 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
         <Controller
           name="type"
           control={control}
-          render={({ field }) => <Select {...field} options={accountTypeOptions} size="large" />}
+          render={({ field }) => (
+            <TypeSelector value={field.value} onChange={field.onChange} />
+          )}
         />
       </Form.Item>
 
@@ -100,7 +133,16 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
         />
       </Form.Item>
 
-      <Form.Item label="Starting Balance (Optional)" validateStatus={errors.initialBalance ? 'error' : ''} help={errors.initialBalance?.message}>
+      <Form.Item
+        label={
+          <Flex gap={4} align="baseline">
+            <Text>Starting Balance</Text>
+            <Text type="secondary" className={styles.optionalLabel}>(Optional)</Text>
+          </Flex>
+        }
+        validateStatus={errors.initialBalance ? 'error' : ''}
+        help={errors.initialBalance?.message}
+      >
         <Controller
           name="initialBalance"
           control={control}
@@ -115,6 +157,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
             />
           )}
         />
+        <Text className={styles.balanceHint}>Leave empty if you want to start from zero</Text>
       </Form.Item>
 
       {apiErrorMessage && (
@@ -152,7 +195,9 @@ function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel,
         <Controller
           name="type"
           control={control}
-          render={({ field }) => <Select {...field} options={accountTypeOptions} size="large" />}
+          render={({ field }) => (
+            <TypeSelector value={field.value} onChange={field.onChange} />
+          )}
         />
       </Form.Item>
 
