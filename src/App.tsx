@@ -3,6 +3,7 @@ import { ConfigProvider, theme } from 'antd'
 import i18n from 'i18next'
 import { useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'
+import { useAuthStore } from './features/auth/store/authStore'
 import { usePreferences } from './features/settings/hooks/usePreferences'
 import { useUiStore } from './features/settings/store/uiStore'
 import router from './router'
@@ -21,13 +22,13 @@ const queryClient = new QueryClient({
 })
 
 function LanguageSync() {
+  const accessToken = useAuthStore((s) => s.accessToken)
   const { data } = usePreferences()
   useEffect(() => {
-    if (data) {
-      const code = LANGUAGE_NAME_TO_CODE[data.language] ?? 'en'
-      i18n.changeLanguage(code)
-    }
-  }, [data])
+    if (!accessToken || !data) return
+    const code = LANGUAGE_NAME_TO_CODE[data.language] ?? 'en'
+    i18n.changeLanguage(code)
+  }, [accessToken, data])
   return null
 }
 
