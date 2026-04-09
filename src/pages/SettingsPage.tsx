@@ -23,17 +23,6 @@ const { Title, Text } = Typography
 
 // ── Enum mappings (must match backend C# enums) ───────────────────────────────
 
-const CURRENCY_TO_ENUM: Record<string, number> = {
-  USD: 0, EUR: 1, GBP: 2, TRY: 3, JPY: 4, CHF: 5, CAD: 6, AUD: 7, CNY: 8, INR: 9,
-}
-const ENUM_TO_CURRENCY: Record<number, string> = Object.fromEntries(
-  Object.entries(CURRENCY_TO_ENUM).map(([k, v]) => [v, k]),
-)
-
-const LANGUAGE_TO_ENUM: Record<string, number> = {
-  en: 0, tr: 1, fr: 2, de: 3, es: 4,
-}
-
 // Backend returns full enum name (e.g. "Turkish") — map back to UI code
 const LANGUAGE_NAME_TO_CODE: Record<string, string> = {
   English: 'en', Turkish: 'tr', French: 'fr', German: 'de', Spanish: 'es',
@@ -124,8 +113,8 @@ function SettingsPage() {
   const handleSavePreferences = (): void => {
     reset()
     savePreferences({
-      defaultCurrency: CURRENCY_TO_ENUM[currency] ?? 0,
-      language: LANGUAGE_TO_ENUM[language] ?? 0,
+      defaultCurrency: currency,
+      language: LANGUAGE_LABELS[language] ?? language,
       notificationsEnabled: notifications,
     })
   }
