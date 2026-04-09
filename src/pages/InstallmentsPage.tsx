@@ -1,13 +1,15 @@
 import { CalendarOutlined, DollarOutlined, FilterOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Flex, Row, Select, Typography } from 'antd'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AddInstallmentPlanModal from '../features/installments/components/AddInstallmentPlanModal'
 import InstallmentPlanList from '../features/installments/components/InstallmentPlanList'
 import { useInstallmentPlans } from '../features/installments/hooks/useInstallmentPlans'
 import type { InstallmentPlan } from '../features/installments/types/InstallmentTypes'
 import { useCards } from '../features/cards/hooks/useCards'
 import { CardCategory } from '../features/cards/types/CardTypes'
-import { formatBalance } from '../lib/formatCurrency'
+import { usePreferences } from '../features/settings/hooks/usePreferences'
+import { formatTotalBalance } from '../lib/formatCurrency'
 import { ROUTES } from '../router/routes'
 import { Link } from 'react-router-dom'
 import styles from './InstallmentsPage.module.css'
@@ -27,6 +29,7 @@ function getPaidCount(plan: InstallmentPlan): number {
 }
 
 function InstallmentsPage() {
+  const { t } = useTranslation()
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [groupBy, setGroupBy] = useState<GroupBy>('card')
   const [cardTypeFilter, setCardTypeFilter] = useState<string>('')
@@ -34,6 +37,8 @@ function InstallmentsPage() {
 
   const { data: plans } = useInstallmentPlans()
   const { data: cards } = useCards()
+  const { data: preferences } = usePreferences()
+  const preferredCurrency = preferences?.defaultCurrency ?? 'USD'
 
   const activePlans = (plans ?? []).filter((p) => getPaidCount(p) < p.numberOfMonths)
   const currentMonthTotal = activePlans.reduce((sum, p) => sum + p.monthlyPayment, 0)
@@ -43,14 +48,14 @@ function InstallmentsPage() {
   }, 0)
 
   const cardOptions = [
-    { label: 'All Cards', value: '' },
+    { label: t('installments.allCards'), value: '' },
     ...(cards ?? []).map((c) => ({ label: `${c.name} (···· ${c.last4Digits})`, value: c.id })),
   ]
 
   const cardTypeOptions = [
-    { label: 'All Types', value: '' },
-    { label: 'Credit', value: CardCategory.Credit },
-    { label: 'Debit', value: CardCategory.Debit },
+    { label: t('installments.allTypes'), value: '' },
+    { label: t('installments.credit'), value: CardCategory.Credit },
+    { label: t('installments.debit'), value: CardCategory.Debit },
   ]
 
   return (
@@ -59,14 +64,14 @@ function InstallmentsPage() {
       {/* ── Header ── */}
       <Flex justify="space-between" align="center">
         <Flex vertical gap={2}>
-          <Title level={3} className={styles.pageTitle}>Installment Planner</Title>
+          <Title level={3} className={styles.pageTitle}>{t('installments.title')}</Title>
           <Text type="secondary">
-            Manage your payment plans across{' '}
-            <Link to={ROUTES.CARDS} className={styles.allCardsLink}>all cards</Link>
+            {t('installments.subtitle')}{' '}
+            <Link to={ROUTES.CARDS} className={styles.allCardsLink}>{t('installments.allCards').toLowerCase()}</Link>
           </Text>
         </Flex>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddOpen(true)}>
-          Create Plan
+          {t('installments.createPlan')}
         </Button>
       </Flex>
 
@@ -75,27 +80,27 @@ function InstallmentsPage() {
         <Col xs={24} sm={14}>
           <Card className={styles.currentMonthCard} variant="borderless">
             <Flex justify="space-between" align="flex-start">
-              <Text className={styles.currentMonthLabel}>Current Month Total</Text>
+              <Text className={styles.currentMonthLabel}>{t('installments.currentMonthTotal')}</Text>
               <CalendarOutlined className={styles.currentMonthIcon} />
             </Flex>
             <Title level={2} className={styles.currentMonthAmount}>
-              {formatBalance(currentMonthTotal, 'USD')}
+              {formatTotalBalance(currentMonthTotal, preferredCurrency)}
             </Title>
             <Text className={styles.currentMonthSub}>
-              {activePlans.length} active installment{activePlans.length !== 1 ? 's' : ''}
+              {activePlans.length} {activePlans.length !== 1 ? t('installments.activeInstallments') : t('installments.activeInstallment')}
             </Text>
           </Card>
         </Col>
         <Col xs={24} sm={10}>
           <Card className={styles.remainingCard}>
             <Flex justify="space-between" align="flex-start">
-              <Text type="secondary" className={styles.remainingLabel}>Total Remaining Balance</Text>
+              <Text type="secondary" className={styles.remainingLabel}>{t('installments.totalRemainingBalance')}</Text>
               <DollarOutlined className={styles.remainingIcon} />
             </Flex>
             <Title level={3} className={styles.remainingAmount}>
-              {formatBalance(totalRemaining, 'USD')}
+              {formatTotalBalance(totalRemaining, preferredCurrency)}
             </Title>
-            <Text type="secondary" className={styles.remainingSub}>Across all plans</Text>
+            <Text type="secondary" className={styles.remainingSub}>{t('installments.acrossAllPlans')}</Text>
           </Card>
         </Col>
       </Row>
@@ -104,33 +109,33 @@ function InstallmentsPage() {
       <Card>
         <Flex align="center" gap={8} className={styles.filterTitle}>
           <FilterOutlined className={styles.filterIcon} />
-          <Text strong>Filters &amp; Grouping</Text>
+          <Text strong>{t('installments.filtersGrouping')}</Text>
         </Flex>
         <Row gutter={[16, 12]} align="bottom" className={styles.filterRow}>
           <Col xs={24} sm={8} md={6}>
             <Flex vertical gap={6}>
-              <Text className={styles.filterLabel}>Group By</Text>
+              <Text className={styles.filterLabel}>{t('installments.groupBy')}</Text>
               <div className={styles.groupByToggle}>
                 <button
                   type="button"
                   className={`${styles.toggleBtn} ${groupBy === 'card' ? styles.toggleBtnActive : ''}`}
                   onClick={() => setGroupBy('card')}
                 >
-                  Card
+                  {t('installments.cardLabel')}
                 </button>
                 <button
                   type="button"
                   className={`${styles.toggleBtn} ${groupBy === 'month' ? styles.toggleBtnActive : ''}`}
                   onClick={() => setGroupBy('month')}
                 >
-                  Month
+                  {t('installments.month')}
                 </button>
               </div>
             </Flex>
           </Col>
           <Col xs={24} sm={8} md={9}>
             <Flex vertical gap={6}>
-              <Text className={styles.filterLabel}>Card Type</Text>
+              <Text className={styles.filterLabel}>{t('cards.cardType')}</Text>
               <Select
                 style={{ width: '100%' }}
                 options={cardTypeOptions}
@@ -141,7 +146,7 @@ function InstallmentsPage() {
           </Col>
           <Col xs={24} sm={8} md={9}>
             <Flex vertical gap={6}>
-              <Text className={styles.filterLabel}>Card</Text>
+              <Text className={styles.filterLabel}>{t('installments.cardLabel')}</Text>
               <Select
                 style={{ width: '100%' }}
                 options={cardOptions}

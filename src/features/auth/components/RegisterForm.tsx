@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Form, Input, Typography } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { z } from 'zod'
 import { ROUTES } from '../../../router/routes'
@@ -26,6 +27,7 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>
 
 function RegisterForm() {
+  const { t } = useTranslation()
   const { mutate: submitRegister, isPending, isError, error } = useRegister()
 
   const {
@@ -40,12 +42,12 @@ function RegisterForm() {
     submitRegister({ email: data.email, password: data.password })
   }
 
-  const apiErrorMessage = error?.response?.data?.error ?? 'Registration failed. Please try again.'
+  const apiErrorMessage = error?.response?.data?.error ?? t('auth.registrationFailed')
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form} noValidate>
       <Form.Item
-        label="Email address"
+        label={t('auth.emailAddress')}
         validateStatus={errors.email ? 'error' : ''}
         help={errors.email?.message}
       >
@@ -57,7 +59,7 @@ function RegisterForm() {
               {...field}
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               size="large"
             />
           )}
@@ -65,7 +67,7 @@ function RegisterForm() {
       </Form.Item>
 
       <Form.Item
-        label="Password"
+        label={t('auth.password')}
         validateStatus={errors.password ? 'error' : ''}
         help={errors.password?.message}
       >
@@ -84,7 +86,7 @@ function RegisterForm() {
       </Form.Item>
 
       <Form.Item
-        label="Confirm password"
+        label={t('auth.confirmPassword')}
         validateStatus={errors.confirmPassword ? 'error' : ''}
         help={errors.confirmPassword?.message}
       >
@@ -110,13 +112,14 @@ function RegisterForm() {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block size="large" loading={isPending}>
-          {isPending ? 'Creating account…' : 'Create account'}
+          {isPending ? t('auth.creatingAccount') : t('auth.createAccount')}
         </Button>
       </Form.Item>
 
       <Text type="secondary" className={styles.switchText}>
-        Already have an account? <Link to={ROUTES.LOGIN}>Sign in</Link>
+        {t('auth.hasAccount')} <Link to={ROUTES.LOGIN}>{t('auth.signIn')}</Link>
       </Text>
+
     </Form>
   )
 }

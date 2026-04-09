@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Col, DatePicker, Flex, Form, InputNumber, Row, Select, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
 import { ACCOUNT_TYPE_ICONS } from '../../accounts/types/AccountTypes'
@@ -47,6 +48,9 @@ const INCOME_CATEGORIES: CategoryOption[] = [
   { label: 'Investment', emoji: '📈' },
 ]
 
+// Note: category label values must remain as English strings since they are stored in the backend.
+// Display labels are translated separately in the UI.
+
 // Type-specific accent colors
 const TYPE_COLORS: Record<'Expense' | 'Income', string> = {
   Expense: '#f59e0b',
@@ -65,6 +69,7 @@ interface TransactionFormProps {
 // ── TransactionForm ───────────────────────────────────────────────────────────
 
 function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel }: TransactionFormProps) {
+  const { t } = useTranslation()
   const { data: accounts } = useAccounts()
 
   const today = new Date().toISOString().split('T')[0]
@@ -114,7 +119,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
     <Form layout="vertical" colon={false} onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
 
       {/* ── Transaction Type ── */}
-      <Form.Item label={<Text className={styles.fieldLabel}>Transaction Type</Text>}>
+      <Form.Item label={<Text className={styles.fieldLabel}>{t('transactions.type')}</Text>}>
         <div className={styles.typeSelector}>
           {(['Expense', 'Income'] as const).map((type) => {
             const isActive = selectedType === type
@@ -139,7 +144,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
       </Form.Item>
 
       {/* ── Account ── */}
-      <Form.Item label={<Text className={styles.fieldLabel}>Account</Text>}>
+      <Form.Item label={<Text className={styles.fieldLabel}>{t('transactions.account')}</Text>}>
         <Controller
           name="accountId"
           control={control}
@@ -147,7 +152,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
             <Select
               value={field.value ?? undefined}
               options={accountOptions}
-              placeholder="Select account"
+              placeholder={t('transactions.selectAccount')}
               className={styles.accountSelect}
               allowClear
               onChange={(val) => field.onChange(val ?? null)}
@@ -181,7 +186,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
 
       {/* ── Amount ── */}
       <Form.Item
-        label={<Text className={styles.fieldLabel}>Amount</Text>}
+        label={<Text className={styles.fieldLabel}>{t('transactions.amount')}</Text>}
         validateStatus={errors.amount ? 'error' : ''}
         help={errors.amount?.message}
       >
@@ -205,7 +210,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
 
       {/* ── Category grid ── */}
       <Form.Item
-        label={<Text className={styles.fieldLabel}>Category</Text>}
+        label={<Text className={styles.fieldLabel}>{t('transactions.category')}</Text>}
         validateStatus={errors.category ? 'error' : ''}
         help={errors.category?.message}
       >
@@ -245,7 +250,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
 
       {/* ── Date ── */}
       <Form.Item
-        label={<Text className={styles.fieldLabel}>Date</Text>}
+        label={<Text className={styles.fieldLabel}>{t('transactions.date')}</Text>}
         validateStatus={errors.date ? 'error' : ''}
         help={errors.date?.message}
       >
@@ -265,10 +270,10 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
       </Form.Item>
 
       {/* ── Recurrence ── */}
-      <Form.Item label={<Text className={styles.fieldLabel}>Recurrence</Text>}>
+      <Form.Item label={<Text className={styles.fieldLabel}>{t('transactions.recurrence')}</Text>}>
         <div className={styles.recurrenceField}>
           <RetweetOutlined className={styles.recurrenceIcon} />
-          <Text>One time</Text>
+          <Text>{t('transactions.oneTime')}</Text>
         </div>
       </Form.Item>
 

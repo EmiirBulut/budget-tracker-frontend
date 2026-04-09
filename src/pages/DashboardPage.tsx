@@ -5,11 +5,13 @@ import {
   ScheduleOutlined,
 } from '@ant-design/icons'
 import { Alert, Card, Col, List, Row, Skeleton, Statistic, Tag, Typography } from 'antd'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useAccounts } from '../features/accounts/hooks/useAccounts'
 import { ACCOUNT_TYPE_LABELS } from '../features/accounts/types/AccountTypes'
 import { useAuthStore } from '../features/auth/store/authStore'
+import { usePreferences } from '../features/settings/hooks/usePreferences'
 import { useReport } from '../features/reports/hooks/useReport'
 import { useTransactions } from '../features/transactions/hooks/useTransactions'
 import { formatBalance, formatTotalBalance } from '../lib/formatCurrency'
@@ -21,7 +23,11 @@ const { Title, Text } = Typography
 const CHART_COLORS = ['#2563eb', '#7c3aed', '#059669', '#ea580c', '#dc2626', '#0891b2']
 
 function DashboardPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
+  const { data: preferences } = usePreferences()
+  const preferredCurrency = preferences?.defaultCurrency ?? 'USD'
+
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
@@ -46,34 +52,34 @@ function DashboardPage() {
   return (
     <main className={styles.page}>
       <div>
-        <Title level={4} style={{ marginBottom: 0 }}>Dashboard</Title>
-        <Text type="secondary">Welcome, {user?.email}</Text>
+        <Title level={4} style={{ marginBottom: 0 }}>{t('dashboard.title')}</Title>
+        <Text type="secondary">{t('dashboard.welcome', { email: user?.email })}</Text>
       </div>
 
       {isAccountsError && (
-        <Alert type="warning" showIcon message="Accounts data is unavailable right now." />
+        <Alert type="warning" showIcon message={t('dashboard.accountsUnavailable')} />
       )}
 
       {/* Hero balance card */}
       <Card className={styles.balanceCard}>
-        <Text className={styles.heroLabel}>Current Balance</Text>
+        <Text className={styles.heroLabel}>{t('dashboard.currentBalance')}</Text>
         <Title level={2} className={styles.heroAmount}>
-          {formatTotalBalance(totalBalance)}
+          {formatTotalBalance(totalBalance, preferredCurrency)}
         </Title>
         <Row gutter={12}>
           <Col span={12}>
             <Card className={styles.heroSubCard}>
-              <Text className={styles.heroSubLabel}>Income</Text>
+              <Text className={styles.heroSubLabel}>{t('dashboard.income')}</Text>
               <Title level={4} className={styles.heroSubAmount}>
-                {formatTotalBalance(report?.totalIncome ?? 0)}
+                {formatTotalBalance(report?.totalIncome ?? 0, preferredCurrency)}
               </Title>
             </Card>
           </Col>
           <Col span={12}>
             <Card className={styles.heroSubCard}>
-              <Text className={styles.heroSubLabel}>Expenses</Text>
+              <Text className={styles.heroSubLabel}>{t('dashboard.expenses')}</Text>
               <Title level={4} className={styles.heroSubAmount}>
-                {formatTotalBalance(report?.totalExpense ?? 0)}
+                {formatTotalBalance(report?.totalExpense ?? 0, preferredCurrency)}
               </Title>
             </Card>
           </Col>
@@ -82,14 +88,14 @@ function DashboardPage() {
 
       {/* My Accounts */}
       <Card
-        title={<Text strong>My Accounts</Text>}
-        extra={<Link to={ROUTES.ACCOUNTS}>View All →</Link>}
+        title={<Text strong>{t('dashboard.myAccounts')}</Text>}
+        extra={<Link to={ROUTES.ACCOUNTS}>{t('dashboard.viewAll')}</Link>}
         size="small"
       >
         {isAccountsLoading ? (
           <Skeleton active paragraph={{ rows: 2 }} />
         ) : recentAccounts.length === 0 ? (
-          <Text type="secondary">No accounts yet.</Text>
+          <Text type="secondary">{t('dashboard.noAccounts')}</Text>
         ) : (
           <Row gutter={[12, 12]}>
             {recentAccounts.map((account) => (
@@ -100,7 +106,7 @@ function DashboardPage() {
                     <br />
                     <Tag color="blue">{ACCOUNT_TYPE_LABELS[account.type]}</Tag>
                     <br />
-                    <Text type="secondary">Current Balance</Text>
+                    <Text type="secondary">{t('dashboard.currentBalance')}</Text>
                     <br />
                     <Text strong>{formatBalance(account.balance, account.currency)}</Text>
                   </Card>
@@ -116,34 +122,34 @@ function DashboardPage() {
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic
-              title="Total Expenses"
-              value={formatTotalBalance(report?.totalExpense ?? 0)}
+              title={t('dashboard.totalExpenses')}
+              value={formatTotalBalance(report?.totalExpense ?? 0, preferredCurrency)}
               prefix={<ArrowDownOutlined />}
               valueStyle={{ color: '#dc2626' }}
             />
-            <Text type="secondary">This month</Text>
+            <Text type="secondary">{t('dashboard.thisMonth')}</Text>
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic
-              title="Total Income"
-              value={formatTotalBalance(report?.totalIncome ?? 0)}
+              title={t('dashboard.totalIncome')}
+              value={formatTotalBalance(report?.totalIncome ?? 0, preferredCurrency)}
               prefix={<ArrowUpOutlined />}
               valueStyle={{ color: '#16a34a' }}
             />
-            <Text type="secondary">This month</Text>
+            <Text type="secondary">{t('dashboard.thisMonth')}</Text>
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic
-              title="Upcoming"
+              title={t('dashboard.upcoming')}
               value="—"
               prefix={<ScheduleOutlined />}
               valueStyle={{ color: '#f97316' }}
             />
-            <Text type="secondary">Installments</Text>
+            <Text type="secondary">{t('dashboard.installments')}</Text>
           </Card>
         </Col>
       </Row>
@@ -151,11 +157,11 @@ function DashboardPage() {
       {/* Charts + Recent Transactions */}
       <Row gutter={[12, 12]}>
         <Col xs={24} md={12}>
-          <Card title={<Text strong>Category Breakdown</Text>}>
+          <Card title={<Text strong>{t('dashboard.categoryBreakdown')}</Text>}>
             {isReportLoading ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartData.length === 0 ? (
-              <Text type="secondary">No expenses yet this month.</Text>
+              <Text type="secondary">{t('dashboard.noExpenses')}</Text>
             ) : (
               <div className={styles.chartWrap}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -168,7 +174,7 @@ function DashboardPage() {
                     <Tooltip
                       formatter={(value) => {
                         const numericValue = typeof value === 'number' ? value : Number(value ?? 0)
-                        return formatTotalBalance(Number.isFinite(numericValue) ? numericValue : 0)
+                        return formatTotalBalance(Number.isFinite(numericValue) ? numericValue : 0, preferredCurrency)
                       }}
                     />
                   </PieChart>
@@ -180,15 +186,15 @@ function DashboardPage() {
 
         <Col xs={24} md={12}>
           <Card
-            title={<Text strong>Recent Transactions</Text>}
-            extra={<Link to={ROUTES.TRANSACTIONS}>View All <ArrowRightOutlined /></Link>}
+            title={<Text strong>{t('dashboard.recentTransactions')}</Text>}
+            extra={<Link to={ROUTES.TRANSACTIONS}>{t('common.viewAll')} <ArrowRightOutlined /></Link>}
           >
             {isTransactionsLoading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : (
               <List
                 dataSource={recentTransactions}
-                locale={{ emptyText: 'No transactions yet.' }}
+                locale={{ emptyText: t('dashboard.noTransactions') }}
                 renderItem={(transaction) => (
                   <List.Item
                     extra={
@@ -198,7 +204,7 @@ function DashboardPage() {
                         }
                       >
                         {transaction.type === 'Income' ? '+' : '-'}
-                        {formatTotalBalance(transaction.amount)}
+                        {formatTotalBalance(transaction.amount, preferredCurrency)}
                       </Text>
                     }
                   >

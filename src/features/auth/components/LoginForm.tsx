@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Form, Input, Typography } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { z } from 'zod'
 import { ROUTES } from '../../../router/routes'
@@ -17,6 +18,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 function LoginForm() {
+  const { t } = useTranslation()
   const { mutate: submitLogin, isPending, isError, error } = useLogin()
 
   const {
@@ -31,12 +33,12 @@ function LoginForm() {
     submitLogin(data)
   }
 
-  const apiErrorMessage = error?.response?.data?.error ?? 'Login failed. Please try again.'
+  const apiErrorMessage = error?.response?.data?.error ?? t('auth.loginFailed')
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form} noValidate>
       <Form.Item
-        label="Email address"
+        label={t('auth.emailAddress')}
         validateStatus={errors.email ? 'error' : ''}
         help={errors.email?.message}
       >
@@ -48,7 +50,7 @@ function LoginForm() {
               {...field}
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               size="large"
             />
           )}
@@ -56,7 +58,7 @@ function LoginForm() {
       </Form.Item>
 
       <Form.Item
-        label="Password"
+        label={t('auth.password')}
         validateStatus={errors.password ? 'error' : ''}
         help={errors.password?.message}
       >
@@ -82,12 +84,12 @@ function LoginForm() {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block size="large" loading={isPending}>
-          {isPending ? 'Signing in…' : 'Sign in'}
+          {isPending ? t('auth.signingIn') : t('auth.signIn')}
         </Button>
       </Form.Item>
 
       <Text type="secondary" className={styles.switchText}>
-        Don't have an account? <Link to={ROUTES.REGISTER}>Register</Link>
+        {t('auth.noAccount')} <Link to={ROUTES.REGISTER}>{t('auth.register')}</Link>
       </Text>
     </Form>
   )
