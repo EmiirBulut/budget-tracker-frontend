@@ -6,8 +6,10 @@ import {
 } from '@ant-design/icons'
 import { Avatar, Button, Card, Col, Divider, Empty, Flex, Row, Skeleton, Tag, Typography } from 'antd'
 import { type ReactNode, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useReport } from '../features/reports/hooks/useReport'
+import { usePreferences } from '../features/settings/hooks/usePreferences'
 import { useTransactions } from '../features/transactions/hooks/useTransactions'
 import { formatTotalBalance } from '../lib/formatCurrency'
 import styles from './ReportsPage.module.css'
@@ -17,13 +19,6 @@ const { Title, Text } = Typography
 // ── Period ────────────────────────────────────────────────────────────────────
 
 type PeriodKey = 'daily' | 'weekly' | 'monthly' | 'yearly'
-
-const PERIOD_LABELS: Record<PeriodKey, string> = {
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-}
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -105,15 +100,6 @@ function getPrevPeriodRange(period: PeriodKey): { from: string; to: string } {
   }
 }
 
-function getPeriodCompareLabel(period: PeriodKey): string {
-  switch (period) {
-    case 'daily': return 'vs yesterday'
-    case 'weekly': return 'vs last week'
-    case 'monthly': return 'vs last month'
-    case 'yearly': return 'vs last year'
-  }
-}
-
 // ── Chart helpers ─────────────────────────────────────────────────────────────
 
 function buildChartData(
@@ -129,7 +115,6 @@ function buildChartData(
   }
 
   if (period === 'monthly') {
-    // Show weeks 1-4/5 within the current month
     const now = new Date()
     const y = now.getFullYear()
     const mo = now.getMonth()
@@ -138,7 +123,6 @@ function buildChartData(
     for (let week = 1; week <= Math.ceil(daysInMonth / 7); week++) {
       weeks.push({ label: `Week ${week}`, Income: 0, Expense: 0 })
     }
-    // Fill from the single byMonth entry if present
     if (byMonth.length === 1) {
       weeks[0].Income = byMonth[0].income
       weeks[0].Expense = byMonth[0].expense
@@ -147,7 +131,6 @@ function buildChartData(
   }
 
   if (period === 'weekly') {
-    // Show Mon–Sun
     return DAY_NAMES.slice(1).concat(DAY_NAMES[0]).map((day) => ({
       label: day,
       Income: 0,
@@ -155,7 +138,6 @@ function buildChartData(
     }))
   }
 
-  // daily — single bar
   if (byMonth.length > 0) {
     return [{ label: 'Today', Income: byMonth[0].income, Expense: byMonth[0].expense }]
   }
@@ -165,11 +147,28 @@ function buildChartData(
 // ── ReportsPage ───────────────────────────────────────────────────────────────
 
 function ReportsPage() {
+  const { t } = useTranslation()
   const [period, setPeriod] = useState<PeriodKey>('monthly')
+  const { data: preferences } = usePreferences()
+  const preferredCurrency = preferences?.defaultCurrency ?? 'USD'
+
+  const PERIOD_LABELS: Record<PeriodKey, string> = {
+    daily: t('reports.daily'),
+    weekly: t('reports.weekly'),
+    monthly: t('reports.monthly'),
+    yearly: t('reports.yearly'),
+  }
+
+  const PERIOD_COMPARE_LABELS: Record<PeriodKey, string> = {
+    daily: t('reports.vsYesterday'),
+    weekly: t('reports.vsLastWeek'),
+    monthly: t('reports.vsLastMonth'),
+    yearly: t('reports.vsLastYear'),
+  }
 
   const { from, to } = useMemo(() => getPeriodRange(period), [period])
   const prevRange = useMemo(() => getPrevPeriodRange(period), [period])
-  const compareLabel = getPeriodCompareLabel(period)
+  const compareLabel = PERIOD_COMPARE_LABELS[period]
 
   const { data, isLoading } = useReport({
     from: new Date(from).toISOString(),
@@ -202,8 +201,8 @@ function ReportsPage() {
 
       {/* ── Header ── */}
       <Flex justify="space-between" align="center">
-        <Title level={3} style={{ margin: 0 }}>Reports</Title>
-        <Button icon={<ExportOutlined />}>Export</Button>
+        <Title level={3} style={{ margin: 0 }}>{t('reports.title')}</Title>
+        <Button icon={<ExportOutlined />}>{t('reports.export')}</Button>
       </Flex>
 
       {/* ── Period selector ── */}
@@ -232,18 +231,19 @@ function ReportsPage() {
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={8}>
             <StatCard
-              label="Total Income"
+              label={t('reports.totalIncome')}
               amount={data?.totalIncome ?? 0}
               diff={incomeDiff}
               compareLabel={compareLabel}
               iconBg="#dcfce7"
               iconColor="#16a34a"
               icon={<ArrowUpOutlined />}
+              currency={preferredCurrency}
             />
           </Col>
           <Col xs={24} sm={8}>
             <StatCard
-              label="Total Expenses"
+              label={t('reports.totalExpenses')}
               amount={data?.totalExpense ?? 0}
               diff={expenseDiff}
               compareLabel={compareLabel}
@@ -251,28 +251,30 @@ function ReportsPage() {
               iconColor="#dc2626"
               icon={<ArrowDownOutlined />}
               invertDiff
+              currency={preferredCurrency}
             />
           </Col>
           <Col xs={24} sm={8}>
             <StatCard
-              label="Net Balance"
+              label={t('reports.netBalance')}
               amount={data?.netBalance ?? 0}
               diff={netDiff}
               compareLabel={compareLabel}
               iconBg="#dbeafe"
               iconColor="#2563eb"
               icon={<SwapOutlined />}
+              currency={preferredCurrency}
             />
           </Col>
         </Row>
       )}
 
       {/* ── Income vs Expenses chart ── */}
-      <Card title="Income vs Expenses">
+      <Card title={t('reports.incomeVsExpenses')}>
         {isLoading ? (
           <Skeleton active paragraph={{ rows: 4 }} />
         ) : chartData.every((d) => d.Income === 0 && d.Expense === 0) ? (
-          <Empty description="No data for this period" />
+          <Empty description={t('reports.noData')} />
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
@@ -285,7 +287,7 @@ function ReportsPage() {
                 tickLine={false}
               />
               <Tooltip
-                formatter={(value, name) => [formatTotalBalance(value as number), name]}
+                formatter={(value, name) => [formatTotalBalance(value as number, preferredCurrency), name]}
                 contentStyle={{ borderRadius: 8, fontSize: 13 }}
               />
               <Legend
@@ -302,7 +304,7 @@ function ReportsPage() {
 
       {/* ── All Transactions ── */}
       <Card
-        title="All Transactions"
+        title={t('reports.allTransactions')}
         extra={
           txData && (
             <Text type="secondary" style={{ fontSize: 13 }}>
@@ -318,14 +320,14 @@ function ReportsPage() {
           </div>
         ) : !txData || txData.items.length === 0 ? (
           <div style={{ padding: '32px 24px' }}>
-            <Empty description="No transactions this period" />
+            <Empty description={t('reports.noTransactions')} />
           </div>
         ) : (
           <div>
             {txData.items.map((tx, idx) => {
               const emoji = CATEGORY_EMOJIS[tx.category] ?? '💳'
               const isIncome = tx.type === 'Income'
-              const amountStr = `${isIncome ? '+' : '-'}${formatTotalBalance(tx.amount)}`
+              const amountStr = `${isIncome ? '+' : '-'}${formatTotalBalance(tx.amount, preferredCurrency)}`
               const dateStr = new Date(tx.date).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -391,9 +393,10 @@ interface StatCardProps {
   iconColor: string
   icon: ReactNode
   invertDiff?: boolean
+  currency: string
 }
 
-function StatCard({ label, amount, diff, compareLabel, iconBg, iconColor, icon, invertDiff = false }: StatCardProps) {
+function StatCard({ label, amount, diff, compareLabel, iconBg, iconColor, icon, invertDiff = false, currency }: StatCardProps) {
   const isPositive = invertDiff ? diff <= 0 : diff >= 0
   const diffColor = diff === 0 ? '#8c8c8c' : isPositive ? '#16a34a' : '#dc2626'
   const diffPrefix = diff > 0 ? '+' : ''
@@ -403,9 +406,9 @@ function StatCard({ label, amount, diff, compareLabel, iconBg, iconColor, icon, 
       <Flex justify="space-between" align="flex-start">
         <div>
           <Text type="secondary" className={styles.statLabel}>{label}</Text>
-          <div className={styles.statAmount}>{formatTotalBalance(amount)}</div>
+          <div className={styles.statAmount}>{formatTotalBalance(amount, currency)}</div>
           <Text style={{ fontSize: 12, color: diffColor }}>
-            {diffPrefix}{formatTotalBalance(Math.abs(diff))} {compareLabel}
+            {diffPrefix}{formatTotalBalance(Math.abs(diff), currency)} {compareLabel}
           </Text>
         </div>
         <Avatar

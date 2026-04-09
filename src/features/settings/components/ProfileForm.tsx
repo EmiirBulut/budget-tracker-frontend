@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Form, Input } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAuthStore } from '../../auth/store/authStore'
 import { useUpdateProfile } from '../hooks/useUpdateProfile'
@@ -14,6 +15,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>
 
 function ProfileForm() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { mutate, isPending, isError, isSuccess, error, reset } = useUpdateProfile()
 
@@ -28,12 +30,12 @@ function ProfileForm() {
   }
 
   const apiErrorMessage = isError
-    ? error.response?.data?.details?.[0] ?? error.response?.data?.error ?? 'Failed to update profile.'
+    ? error.response?.data?.details?.[0] ?? error.response?.data?.error ?? t('profile.updateFailed')
     : undefined
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
-      <Form.Item label="Email" validateStatus={errors.email ? 'error' : ''} help={errors.email?.message}>
+      <Form.Item label={t('profile.email')} validateStatus={errors.email ? 'error' : ''} help={errors.email?.message}>
         <Controller
           name="email"
           control={control}
@@ -51,13 +53,13 @@ function ProfileForm() {
 
       {isSuccess && (
         <Form.Item>
-          <Alert message="Profile updated successfully." type="success" showIcon />
+          <Alert message={t('profile.updateSuccess')} type="success" showIcon />
         </Form.Item>
       )}
 
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={isPending}>
-          {isPending ? 'Saving…' : 'Save changes'}
+          {isPending ? t('common.saving') : t('profile.saveChanges')}
         </Button>
       </Form.Item>
     </Form>

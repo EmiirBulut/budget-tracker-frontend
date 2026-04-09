@@ -1,15 +1,17 @@
 import { MenuOutlined } from '@ant-design/icons'
-import { Button, Drawer, Grid, Layout, Typography } from 'antd'
+import { Button, Drawer, Grid, Layout, Typography, theme } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { revokeToken } from '../../features/auth/api/authApi'
 import { useAuthStore } from '../../features/auth/store/authStore'
+import { useUiStore } from '../../features/settings/store/uiStore'
 import { ROUTES } from '../../router/routes'
 import Sidebar from './Sidebar'
 import PwaUpdatePrompt from '../ui/PwaUpdatePrompt'
 import styles from './AppLayout.module.css'
 
-const { Sider, Content } = Layout
+const { Sider, Content, Header } = Layout
 const { Text } = Typography
 const { useBreakpoint } = Grid
 
@@ -19,6 +21,9 @@ function AppLayout() {
   const { user, refreshToken, clearAuth } = useAuthStore()
   const { md } = useBreakpoint()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const { isDarkMode } = useUiStore()
+  const { token } = theme.useToken()
+  const { t } = useTranslation()
 
   // Close drawer on navigation
   useEffect(() => {
@@ -44,7 +49,7 @@ function AppLayout() {
 
       {/* Desktop sidebar — visible on md and above */}
       {md && (
-        <Sider width={220} theme="light">
+        <Sider width={220} theme={isDarkMode ? 'dark' : 'light'}>
           <Sidebar />
         </Sider>
       )}
@@ -62,7 +67,7 @@ function AppLayout() {
       </Drawer>
 
       <Layout>
-        <header className={styles.header}>
+        <Header className={styles.header} style={{ background: token.colorBgContainer, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
           {/* Hamburger — visible on mobile only */}
           {!md && (
             <Button
@@ -73,8 +78,8 @@ function AppLayout() {
             />
           )}
           <Text type="secondary" className={styles.userEmail}>{user?.email}</Text>
-          <Button onClick={handleSignOut}>Sign out</Button>
-        </header>
+          <Button onClick={handleSignOut}>{t('common.signOut')}</Button>
+        </Header>
 
         <Content className={styles.content}>
           <Outlet />

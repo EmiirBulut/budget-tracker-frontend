@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Card, Col, Flex, Form, Input, InputNumber, Pagination, Row, Select, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
 import { ACCOUNT_TYPE_ICONS, CURRENCY_LABELS, type Account } from '../../accounts/types/AccountTypes'
@@ -26,14 +27,30 @@ const baseCardSchema = {
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
   cardType: z.nativeEnum(CardType),
   last4Digits: z.string().length(4, 'Must be exactly 4 digits').regex(/^\d{4}$/, 'Must be 4 digits'),
-  expiryDate: z.string().regex(/^\d{2}\/\d{2}$/, 'Format must be MM/YY'),
+  expiryDate: z
+    .string()
+    .regex(/^\d{2}\/\d{2}$/, 'Format must be MM/YY')
+    .refine((val) => {
+      const month = parseInt(val.split('/')[0], 10)
+      return month >= 1 && month <= 12
+    }, 'Month must be 01–12'),
   currency: z.nativeEnum(Currency),
   color: z.string().min(1, 'Select a color'),
   creditLimit: z.coerce.number().positive('Must be positive').nullable().optional(),
   linkedAccountId: z.string().nullable().optional(),
 }
 
-const createCardSchema = z.object({ ...baseCardSchema, cardCategory: z.nativeEnum(CardCategory) })
+const createCardSchema = z
+  .object({ ...baseCardSchema, cardCategory: z.nativeEnum(CardCategory) })
+  .superRefine((data, ctx) => {
+    if (data.cardCategory === CardCategory.Debit && !data.linkedAccountId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Linked account is required for debit cards',
+        path: ['linkedAccountId'],
+      })
+    }
+  })
 const editCardSchema = z.object(baseCardSchema)
 
 type CreateCardFormValues = z.infer<typeof createCardSchema>
@@ -73,18 +90,19 @@ interface CategorySelectorProps {
 }
 
 function CategorySelector({ value, onChange }: CategorySelectorProps) {
+  const { t } = useTranslation()
   const options = [
     {
       category: CardCategory.Credit,
       icon: <CreditCardOutlined />,
-      title: 'Credit Card',
-      desc: 'Borrowed funds with credit limit',
+      title: t('cards.creditCard'),
+      desc: t('cards.creditCardDesc'),
     },
     {
       category: CardCategory.Debit,
       icon: <WalletOutlined />,
-      title: 'Debit Card',
-      desc: 'Linked to your bank account',
+      title: t('cards.debitCard'),
+      desc: t('cards.debitCardDesc'),
     },
   ]
 
@@ -153,6 +171,7 @@ interface LinkedAccountSelectorProps {
 const ACCOUNTS_PAGE_SIZE = 5
 
 function LinkedAccountSelector({ value, onChange, accounts }: LinkedAccountSelectorProps) {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
@@ -169,7 +188,7 @@ function LinkedAccountSelector({ value, onChange, accounts }: LinkedAccountSelec
   return (
     <Flex vertical gap={8}>
       <Input
-        placeholder="Search accounts…"
+        placeholder={t('cards.searchAccounts')}
         prefix={<SearchOutlined />}
         value={search}
         onChange={(e) => handleSearch(e.target.value)}
@@ -193,7 +212,7 @@ function LinkedAccountSelector({ value, onChange, accounts }: LinkedAccountSelec
           </Card>
         ))}
         {paginated.length === 0 && (
-          <Text type="secondary" className={styles.noAccountsText}>No accounts found</Text>
+          <Text type="secondary" className={styles.noAccountsText}>{t('cards.noAccountsFound')}</Text>
         )}
       </Flex>
       {filtered.length > ACCOUNTS_PAGE_SIZE && (
@@ -218,8 +237,9 @@ interface ColorSwatchFieldProps {
 }
 
 function ColorSwatchField({ colors, selected, onSelect, error }: ColorSwatchFieldProps) {
+  const { t } = useTranslation()
   return (
-    <Form.Item label="Card Color" validateStatus={error ? 'error' : ''} help={error}>
+    <Form.Item label={t('cards.cardColor')} validateStatus={error ? 'error' : ''} help={error}>
       <Flex gap={8} wrap>
         {colors.map((color) => (
           <button
@@ -246,6 +266,7 @@ function CardForm(props: CardFormProps) {
 // ── Create form ───────────────────────────────────────────────────────────────
 
 function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues, onCancel }: CreateProps) {
+  const { t } = useTranslation()
   const { data: accounts } = useAccounts()
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<CreateCardFormValues>({
@@ -277,7 +298,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
 
       {/* Card Category */}
-      <Form.Item label="Card Category" validateStatus={errors.cardCategory ? 'error' : ''} help={errors.cardCategory?.message}>
+      <Form.Item label={t('cards.category')} validateStatus={errors.cardCategory ? 'error' : ''} help={errors.cardCategory?.message}>
         <Controller
           name="cardCategory"
           control={control}
@@ -292,13 +313,15 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
         <Form.Item
           label={
             <Flex gap={4} align="center">
-              <Text>Linked Account</Text>
+              <Text>{t('cards.linkedAccount')}</Text>
               <Text className={styles.required}>*</Text>
             </Flex>
           }
+          validateStatus={errors.linkedAccountId ? 'error' : ''}
+          help={errors.linkedAccountId?.message}
         >
           <Text type="secondary" className={styles.linkedAccountHint}>
-            Select the account this debit card is linked to
+            {t('cards.linkedAccountHint')}
           </Text>
           <Controller
             name="linkedAccountId"
@@ -315,14 +338,14 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
       )}
 
       {/* Card Name */}
-      <Form.Item label="Card Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+      <Form.Item label={t('cards.cardName')} validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
         <Controller
           name="name"
           control={control}
           render={({ field }) => (
             <Input
               {...field}
-              placeholder={selectedCategory === CardCategory.Credit ? 'e.g., Main Credit Card' : 'e.g., Checking Debit'}
+              placeholder={selectedCategory === CardCategory.Credit ? t('cards.creditCardPlaceholder') : t('cards.debitCardPlaceholder')}
               size="large"
               suffix={<EllipsisOutlined className={styles.inputSuffix} />}
             />
@@ -331,7 +354,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
       </Form.Item>
 
       {/* Card Type */}
-      <Form.Item label="Card Type" validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
+      <Form.Item label={t('cards.cardType')} validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
         <Controller
           name="cardType"
           control={control}
@@ -342,27 +365,47 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
       </Form.Item>
 
       {/* Last 4 Digits */}
-      <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
+      <Form.Item label={t('cards.last4')} validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
         <Controller
           name="last4Digits"
           control={control}
-          render={({ field }) => <Input {...field} maxLength={4} placeholder="4532" size="large" />}
+          render={({ field }) => (
+            <Input
+              {...field}
+              maxLength={4}
+              placeholder="4532"
+              size="large"
+              onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+            />
+          )}
         />
       </Form.Item>
 
       {/* Expiry Date + Currency side by side */}
       <Row gutter={12}>
         <Col xs={24} sm={12}>
-          <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
+          <Form.Item label={t('cards.expiry')} validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
             <Controller
               name="expiryDate"
               control={control}
-              render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                  size="large"
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 4)
+                    const formatted = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
+                    field.onChange(formatted)
+                  }}
+                />
+              )}
             />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
-          <Form.Item label="Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+          <Form.Item label={t('cards.currency')} validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
             <Controller
               name="currency"
               control={control}
@@ -374,7 +417,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
 
       {/* Credit Limit — Credit only */}
       {selectedCategory === CardCategory.Credit && (
-        <Form.Item label="Credit Limit" validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
+        <Form.Item label={t('cards.creditLimit')} validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
           <Controller
             name="creditLimit"
             control={control}
@@ -411,12 +454,12 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
       <Row gutter={12}>
         <Col span={12}>
           <Button block size="large" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         </Col>
         <Col span={12}>
           <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
-            {isSubmitting ? 'Saving…' : submitLabel}
+            {isSubmitting ? t('common.saving') : submitLabel}
           </Button>
         </Col>
       </Row>
@@ -427,6 +470,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
 // ── Edit form ─────────────────────────────────────────────────────────────────
 
 function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues, cardCategory, onCancel }: EditProps) {
+  const { t } = useTranslation()
   const { data: accounts } = useAccounts()
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<EditCardFormValues>({
@@ -440,7 +484,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
   return (
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
 
-      <Form.Item label="Card Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+      <Form.Item label={t('cards.cardName')} validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
         <Controller
           name="name"
           control={control}
@@ -454,7 +498,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
         />
       </Form.Item>
 
-      <Form.Item label="Card Type" validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
+      <Form.Item label={t('cards.cardType')} validateStatus={errors.cardType ? 'error' : ''} help={errors.cardType?.message}>
         <Controller
           name="cardType"
           control={control}
@@ -464,26 +508,45 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
         />
       </Form.Item>
 
-      <Form.Item label="Last 4 Digits" validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
+      <Form.Item label={t('cards.last4')} validateStatus={errors.last4Digits ? 'error' : ''} help={errors.last4Digits?.message}>
         <Controller
           name="last4Digits"
           control={control}
-          render={({ field }) => <Input {...field} maxLength={4} size="large" />}
+          render={({ field }) => (
+            <Input
+              {...field}
+              maxLength={4}
+              size="large"
+              onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+            />
+          )}
         />
       </Form.Item>
 
       <Row gutter={12}>
         <Col xs={24} sm={12}>
-          <Form.Item label="Expiry Date" validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
+          <Form.Item label={t('cards.expiry')} validateStatus={errors.expiryDate ? 'error' : ''} help={errors.expiryDate?.message}>
             <Controller
               name="expiryDate"
               control={control}
-              render={({ field }) => <Input {...field} placeholder="MM/YY" maxLength={5} size="large" />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                  size="large"
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 4)
+                    const formatted = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
+                    field.onChange(formatted)
+                  }}
+                />
+              )}
             />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
-          <Form.Item label="Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+          <Form.Item label={t('cards.currency')} validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
             <Controller
               name="currency"
               control={control}
@@ -494,7 +557,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
       </Row>
 
       {cardCategory === CardCategory.Credit && (
-        <Form.Item label="Credit Limit" validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
+        <Form.Item label={t('cards.creditLimit')} validateStatus={errors.creditLimit ? 'error' : ''} help={errors.creditLimit?.message}>
           <Controller
             name="creditLimit"
             control={control}
@@ -513,7 +576,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
       )}
 
       {cardCategory === CardCategory.Debit && (
-        <Form.Item label="Linked Account">
+        <Form.Item label={t('cards.linkedAccount')}>
           <Controller
             name="linkedAccountId"
             control={control}
@@ -544,12 +607,12 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
       <Row gutter={12}>
         <Col span={12}>
           <Button block size="large" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         </Col>
         <Col span={12}>
           <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
-            {isSubmitting ? 'Saving…' : submitLabel}
+            {isSubmitting ? t('common.saving') : submitLabel}
           </Button>
         </Col>
       </Row>

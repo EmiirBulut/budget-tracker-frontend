@@ -12,15 +12,14 @@ export function formatBalance(amount: number, currency: string): string {
 }
 
 /**
- * Formats a raw number as a dollar-sign-prefixed amount.
- * Used for the total balance banner which aggregates across currencies.
+ * Formats a total balance amount using the given ISO 4217 currency code.
+ * Used for aggregate totals displayed in the user's preferred currency.
  */
-export function formatTotalBalance(amount: number): string {
-  return (
-    '$' +
-    new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount)
-  )
+export function formatTotalBalance(amount: number, currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)
 }

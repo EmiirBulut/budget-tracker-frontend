@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Card, Col, Flex, Form, Input, InputNumber, Row, Select, Typography } from 'antd'
 import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import {
   AccountType,
@@ -95,6 +96,7 @@ function AccountForm(props: AccountFormProps) {
 }
 
 function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: CreateProps) {
+  const { t } = useTranslation()
   const { control, handleSubmit, formState: { errors } } = useForm<CreateAccountFormValues>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
@@ -107,15 +109,15 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
-      <Form.Item label="Account Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+      <Form.Item label={t('accounts.name')} validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
         <Controller
           name="name"
           control={control}
-          render={({ field }) => <Input {...field} placeholder="e.g., Main Credit Card" size="large" />}
+          render={({ field }) => <Input {...field} placeholder={t('accounts.namePlaceholder')} size="large" />}
         />
       </Form.Item>
 
-      <Form.Item label="Account Type" validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
+      <Form.Item label={t('accounts.type')} validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
         <Controller
           name="type"
           control={control}
@@ -125,7 +127,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
         />
       </Form.Item>
 
-      <Form.Item label="Default Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+      <Form.Item label={t('accounts.currency')} validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
         <Controller
           name="currency"
           control={control}
@@ -136,8 +138,8 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
       <Form.Item
         label={
           <Flex gap={4} align="baseline">
-            <Text>Starting Balance</Text>
-            <Text type="secondary" className={styles.optionalLabel}>(Optional)</Text>
+            <Text>{t('accounts.startingBalance')}</Text>
+            <Text type="secondary" className={styles.optionalLabel}>{t('accounts.startingBalanceOptional')}</Text>
           </Flex>
         }
         validateStatus={errors.initialBalance ? 'error' : ''}
@@ -157,7 +159,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
             />
           )}
         />
-        <Text className={styles.balanceHint}>Leave empty if you want to start from zero</Text>
+        <Text className={styles.balanceHint}>{t('accounts.startingBalanceHint')}</Text>
       </Form.Item>
 
       {apiErrorMessage && (
@@ -168,7 +170,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
-          {isSubmitting ? 'Saving…' : submitLabel}
+          {isSubmitting ? t('common.saving') : submitLabel}
         </Button>
       </Form.Item>
     </Form>
@@ -176,6 +178,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
 }
 
 function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: EditProps) {
+  const { t } = useTranslation()
   const { control, handleSubmit, formState: { errors } } = useForm<EditAccountFormValues>({
     resolver: zodResolver(editAccountSchema),
     defaultValues: initialValues,
@@ -183,15 +186,15 @@ function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel,
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
-      <Form.Item label="Account Name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+      <Form.Item label={t('accounts.name')} validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
         <Controller
           name="name"
           control={control}
-          render={({ field }) => <Input {...field} placeholder="e.g., Main Credit Card" size="large" />}
+          render={({ field }) => <Input {...field} placeholder={t('accounts.namePlaceholder')} size="large" />}
         />
       </Form.Item>
 
-      <Form.Item label="Account Type" validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
+      <Form.Item label={t('accounts.type')} validateStatus={errors.type ? 'error' : ''} help={errors.type?.message}>
         <Controller
           name="type"
           control={control}
@@ -201,7 +204,7 @@ function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel,
         />
       </Form.Item>
 
-      <Form.Item label="Default Currency" validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
+      <Form.Item label={t('accounts.currency')} validateStatus={errors.currency ? 'error' : ''} help={errors.currency?.message}>
         <Controller
           name="currency"
           control={control}
@@ -217,7 +220,7 @@ function EditAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel,
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
-          {isSubmitting ? 'Saving…' : submitLabel}
+          {isSubmitting ? t('common.saving') : submitLabel}
         </Button>
       </Form.Item>
     </Form>

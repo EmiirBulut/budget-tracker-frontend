@@ -3,6 +3,7 @@ import { Alert, Button, DatePicker, Form, Input, InputNumber, Select } from 'ant
 import dayjs from 'dayjs'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useCards } from '../../cards/hooks/useCards'
 import type { CreateInstallmentPlanRequest } from '../types/InstallmentTypes'
@@ -28,6 +29,7 @@ interface InstallmentPlanFormProps {
 }
 
 function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel }: InstallmentPlanFormProps) {
+  const { t } = useTranslation()
   const { data: cards } = useCards()
   const today = new Date().toISOString().split('T')[0]
 
@@ -67,7 +69,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
-      <Form.Item label="Card" validateStatus={errors.cardId ? 'error' : ''} help={errors.cardId?.message}>
+      <Form.Item label={t('installments.cardLabel')} validateStatus={errors.cardId ? 'error' : ''} help={errors.cardId?.message}>
         <Controller
           name="cardId"
           control={control}
@@ -75,7 +77,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
             <Select
               {...field}
               options={cardOptions}
-              placeholder="Select a card"
+              placeholder={t('installments.selectCard')}
               size="large"
               className={styles.inputFull}
             />
@@ -83,27 +85,27 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
         />
       </Form.Item>
 
-      <Form.Item label="Plan name" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
+      <Form.Item label={t('installments.planName')} validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
         <Controller
           name="name"
           control={control}
           render={({ field }) => (
-            <Input {...field} placeholder="e.g. Laptop purchase" size="large" />
+            <Input {...field} placeholder={t('installments.planNamePlaceholder')} size="large" />
           )}
         />
       </Form.Item>
 
-      <Form.Item label="Category" validateStatus={errors.category ? 'error' : ''} help={errors.category?.message}>
+      <Form.Item label={t('installments.category')} validateStatus={errors.category ? 'error' : ''} help={errors.category?.message}>
         <Controller
           name="category"
           control={control}
           render={({ field }) => (
-            <Input {...field} placeholder="e.g. Electronics, Travel" size="large" />
+            <Input {...field} placeholder={t('installments.categoryPlaceholder')} size="large" />
           )}
         />
       </Form.Item>
 
-      <Form.Item label="Total amount" validateStatus={errors.totalAmount ? 'error' : ''} help={errors.totalAmount?.message}>
+      <Form.Item label={t('installments.totalAmount')} validateStatus={errors.totalAmount ? 'error' : ''} help={errors.totalAmount?.message}>
         <Controller
           name="totalAmount"
           control={control}
@@ -121,7 +123,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
         />
       </Form.Item>
 
-      <Form.Item label="Number of months" validateStatus={errors.numberOfMonths ? 'error' : ''} help={errors.numberOfMonths?.message}>
+      <Form.Item label={t('installments.numberOfMonths')} validateStatus={errors.numberOfMonths ? 'error' : ''} help={errors.numberOfMonths?.message}>
         <Controller
           name="numberOfMonths"
           control={control}
@@ -138,9 +140,9 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
       </Form.Item>
 
       <Form.Item
-        label="Monthly payment"
+        label={t('installments.monthlyPayment')}
         validateStatus={errors.monthlyPayment ? 'error' : ''}
-        help={errors.monthlyPayment?.message ?? 'Auto-calculated from total ÷ months. You can override.'}
+        help={errors.monthlyPayment?.message ?? t('installments.monthlyPaymentHint')}
       >
         <Controller
           name="monthlyPayment"
@@ -151,7 +153,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
               prefix="$"
               min={0}
               step={0.01}
-              placeholder="Auto-calculated"
+              placeholder={t('installments.monthlyPaymentPlaceholder')}
               size="large"
               className={styles.inputFull}
             />
@@ -159,7 +161,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
         />
       </Form.Item>
 
-      <Form.Item label="Start date" validateStatus={errors.startDate ? 'error' : ''} help={errors.startDate?.message}>
+      <Form.Item label={t('installments.startDate')} validateStatus={errors.startDate ? 'error' : ''} help={errors.startDate?.message}>
         <Controller
           name="startDate"
           control={control}
@@ -182,7 +184,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block size="large" loading={isSubmitting}>
-          {isSubmitting ? 'Creating…' : submitLabel}
+          {isSubmitting ? t('installments.creating') : submitLabel}
         </Button>
       </Form.Item>
     </Form>

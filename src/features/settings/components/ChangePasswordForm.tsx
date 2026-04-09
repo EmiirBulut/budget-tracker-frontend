@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Alert, Button, Form, Input } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useChangePassword } from '../hooks/useChangePassword'
 import styles from './ProfileForm.module.css'
@@ -8,7 +9,7 @@ import styles from './ProfileForm.module.css'
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
     confirmNewPassword: z.string().min(1, 'Confirm your new password'),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
@@ -19,6 +20,7 @@ const changePasswordSchema = z
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>
 
 function ChangePasswordForm() {
+  const { t } = useTranslation()
   const { mutate, isPending, isError, isSuccess, error, reset } = useChangePassword()
 
   const { control, handleSubmit, resetField, formState: { errors } } = useForm<ChangePasswordFormValues>({
@@ -41,12 +43,12 @@ function ChangePasswordForm() {
   }
 
   const apiErrorMessage = isError
-    ? error.response?.data?.details?.[0] ?? error.response?.data?.error ?? 'Failed to change password.'
+    ? error.response?.data?.details?.[0] ?? error.response?.data?.error ?? t('password.changeFailed')
     : undefined
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(handleFormSubmit)} className={styles.form}>
-      <Form.Item label="Current password" validateStatus={errors.currentPassword ? 'error' : ''} help={errors.currentPassword?.message}>
+      <Form.Item label={t('password.current')} validateStatus={errors.currentPassword ? 'error' : ''} help={errors.currentPassword?.message}>
         <Controller
           name="currentPassword"
           control={control}
@@ -56,7 +58,7 @@ function ChangePasswordForm() {
         />
       </Form.Item>
 
-      <Form.Item label="New password" validateStatus={errors.newPassword ? 'error' : ''} help={errors.newPassword?.message}>
+      <Form.Item label={t('password.new')} validateStatus={errors.newPassword ? 'error' : ''} help={errors.newPassword?.message}>
         <Controller
           name="newPassword"
           control={control}
@@ -66,7 +68,7 @@ function ChangePasswordForm() {
         />
       </Form.Item>
 
-      <Form.Item label="Confirm new password" validateStatus={errors.confirmNewPassword ? 'error' : ''} help={errors.confirmNewPassword?.message}>
+      <Form.Item label={t('password.confirm')} validateStatus={errors.confirmNewPassword ? 'error' : ''} help={errors.confirmNewPassword?.message}>
         <Controller
           name="confirmNewPassword"
           control={control}
@@ -84,13 +86,13 @@ function ChangePasswordForm() {
 
       {isSuccess && (
         <Form.Item>
-          <Alert message="Password changed successfully." type="success" showIcon />
+          <Alert message={t('password.changeSuccess')} type="success" showIcon />
         </Form.Item>
       )}
 
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={isPending}>
-          {isPending ? 'Changing…' : 'Change password'}
+          {isPending ? t('password.changing') : t('password.change')}
         </Button>
       </Form.Item>
     </Form>
