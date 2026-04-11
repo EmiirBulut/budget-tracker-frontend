@@ -1,0 +1,51 @@
+.fab {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  right: calc(24px + env(safe-area-inset-right, 0px));
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #2563EB;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  /* Ensure tap area is never too small on mobile */
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.fab:hover {
+  background-color: #1d4ed8;
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+.icon {
+  font-size: 22px;
+  color: #ffffff;
+  /* Prevent icon from shifting on active */
+  pointer-events: none;
+}
+
+@media (max-width: 575px) {
+  .fab {
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    width: 52px;
+    height: 52px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+}
