@@ -23,3 +23,23 @@ export function formatTotalBalance(amount: number, currency: string = 'USD'): st
     maximumFractionDigits: 2,
   }).format(amount)
 }
+
+/**
+ * Returns just the currency symbol for a given ISO 4217 currency code.
+ * Example: getCurrencySymbol('USD') → '$', getCurrencySymbol('TRY') → '₺'
+ */
+export function getCurrencySymbol(currency: string): string {
+  try {
+    return (
+      new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency,
+        currencyDisplay: 'narrowSymbol',
+      })
+        .formatToParts(0)
+        .find((p) => p.type === 'currency')?.value ?? currency
+    )
+  } catch {
+    return currency
+  }
+}

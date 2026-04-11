@@ -9,6 +9,7 @@ import {
   AccountType,
   ACCOUNT_TYPE_LABELS,
   CURRENCY_LABELS,
+  CURRENCY_SYMBOLS,
   Currency,
   type CreateAccountRequest,
   type UpdateAccountRequest,
@@ -97,7 +98,7 @@ function AccountForm(props: AccountFormProps) {
 
 function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, initialValues }: CreateProps) {
   const { t } = useTranslation()
-  const { control, handleSubmit, formState: { errors } } = useForm<CreateAccountFormValues>({
+  const { control, handleSubmit, watch, formState: { errors } } = useForm<CreateAccountFormValues>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
       name: initialValues?.name ?? '',
@@ -106,6 +107,8 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
       initialBalance: initialValues?.initialBalance ?? 0,
     },
   })
+
+  const selectedCurrency = watch('currency')
 
   return (
     <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className={styles.form}>
@@ -151,7 +154,7 @@ function CreateAccountForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabe
           render={({ field }) => (
             <InputNumber
               {...field}
-              prefix="$"
+              prefix={CURRENCY_SYMBOLS[selectedCurrency] ?? selectedCurrency}
               min={0}
               step={0.01}
               size="large"

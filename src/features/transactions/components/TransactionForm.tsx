@@ -6,7 +6,8 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
-import { ACCOUNT_TYPE_ICONS } from '../../accounts/types/AccountTypes'
+import { ACCOUNT_TYPE_ICONS, CURRENCY_SYMBOLS, Currency } from '../../accounts/types/AccountTypes'
+import { usePreferences } from '../../settings/hooks/usePreferences'
 import { formatBalance } from '../../../lib/formatCurrency'
 import type { CreateTransactionRequest } from '../types/TransactionTypes'
 import styles from './TransactionForm.module.css'
@@ -71,6 +72,7 @@ interface TransactionFormProps {
 function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel }: TransactionFormProps) {
   const { t } = useTranslation()
   const { data: accounts } = useAccounts()
+  const { data: preferences } = usePreferences()
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -93,6 +95,9 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
   const accentColor = TYPE_COLORS[selectedType]
 
   const activeAccount = (accounts ?? []).find((a) => a.id === selectedAccountId)
+
+  const activeCurrency = (activeAccount?.currency ?? preferences?.defaultCurrency ?? Currency.USD) as Currency
+  const currencySymbol = CURRENCY_SYMBOLS[activeCurrency] ?? activeCurrency
 
   const handleTypeChange = (type: 'Expense' | 'Income'): void => {
     setValue('type', type)
@@ -197,7 +202,7 @@ function TransactionForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel 
             <InputNumber
               {...field}
               value={field.value ?? undefined}
-              prefix={<Text type="secondary" className={styles.amountPrefix}>$</Text>}
+              prefix={<Text type="secondary" className={styles.amountPrefix}>{currencySymbol}</Text>}
               min={0}
               step={0.01}
               placeholder="0.00"

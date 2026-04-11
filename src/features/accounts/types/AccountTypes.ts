@@ -58,6 +58,19 @@ export const ACCOUNT_TYPE_TAG_COLORS: Record<AccountType, string> = {
   [AccountType.EWallet]: 'orange',
 }
 
+export const CURRENCY_SYMBOLS: Record<Currency, string> = {
+  [Currency.USD]: '$',
+  [Currency.EUR]: '€',
+  [Currency.GBP]: '£',
+  [Currency.TRY]: '₺',
+  [Currency.JPY]: '¥',
+  [Currency.CHF]: 'Fr',
+  [Currency.CAD]: 'CA$',
+  [Currency.AUD]: 'AU$',
+  [Currency.CNY]: '¥',
+  [Currency.INR]: '₹',
+}
+
 export const CURRENCY_LABELS: Record<Currency, string> = {
   [Currency.USD]: 'USD ($)',
   [Currency.EUR]: 'EUR (€)',

@@ -11,6 +11,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { useAccounts } from '../features/accounts/hooks/useAccounts'
 import { ACCOUNT_TYPE_LABELS } from '../features/accounts/types/AccountTypes'
 import { useAuthStore } from '../features/auth/store/authStore'
+import { useDashboardSummary } from '../features/dashboard/hooks/useDashboardSummary'
 import { usePreferences } from '../features/settings/hooks/usePreferences'
 import { useReport } from '../features/reports/hooks/useReport'
 import { useTransactions } from '../features/transactions/hooks/useTransactions'
@@ -33,6 +34,7 @@ function DashboardPage() {
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
   const { data: accounts, isLoading: isAccountsLoading, isError: isAccountsError } = useAccounts()
+  const { data: summary } = useDashboardSummary()
   const { data: transactionsData, isLoading: isTransactionsLoading } = useTransactions({ page: 1, pageSize: 10 })
   const { data: report, isLoading: isReportLoading } = useReport({
     from: monthStart.toISOString(),
@@ -40,7 +42,6 @@ function DashboardPage() {
   })
 
   const safeAccounts = accounts ?? []
-  const totalBalance = safeAccounts.reduce((sum, a) => sum + a.balance, 0)
   const recentAccounts = safeAccounts.slice(0, 4)
   const recentTransactions = transactionsData?.items ?? []
 
@@ -64,7 +65,7 @@ function DashboardPage() {
       <Card className={styles.balanceCard}>
         <Text className={styles.heroLabel}>{t('dashboard.currentBalance')}</Text>
         <Title level={2} className={styles.heroAmount}>
-          {formatTotalBalance(totalBalance, preferredCurrency)}
+          {formatTotalBalance(summary?.totalBalance ?? 0, summary?.defaultCurrency ?? preferredCurrency)}
         </Title>
         <Row gutter={12}>
           <Col span={12}>

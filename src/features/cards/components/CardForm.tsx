@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAccounts } from '../../accounts/hooks/useAccounts'
-import { ACCOUNT_TYPE_ICONS, CURRENCY_LABELS, type Account } from '../../accounts/types/AccountTypes'
+import { ACCOUNT_TYPE_ICONS, CURRENCY_LABELS, CURRENCY_SYMBOLS, type Account } from '../../accounts/types/AccountTypes'
 import { formatBalance } from '../../../lib/formatCurrency'
 import {
   CARD_COLORS,
@@ -286,6 +286,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
 
   const selectedCategory = watch('cardCategory')
   const selectedColor = watch('color')
+  const selectedCurrency = watch('currency')
 
   useEffect(() => {
     setValue('creditLimit', null)
@@ -425,6 +426,7 @@ function CreateCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, 
               <InputNumber
                 {...field}
                 value={field.value ?? undefined}
+                prefix={CURRENCY_SYMBOLS[selectedCurrency] ?? selectedCurrency}
                 min={0}
                 step={0.01}
                 placeholder="10000"
@@ -479,6 +481,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
   })
 
   const selectedColor = watch('color')
+  const selectedCurrency = watch('currency')
   const activeAccounts = (accounts ?? []).filter((a) => !a.isArchived)
 
   return (
@@ -565,6 +568,7 @@ function EditCardForm({ onSubmit, isSubmitting, apiErrorMessage, submitLabel, in
               <InputNumber
                 {...field}
                 value={field.value ?? undefined}
+                prefix={CURRENCY_SYMBOLS[selectedCurrency] ?? selectedCurrency}
                 min={0}
                 step={0.01}
                 size="large"

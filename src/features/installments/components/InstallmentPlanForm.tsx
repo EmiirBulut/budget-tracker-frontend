@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useCards } from '../../cards/hooks/useCards'
+import { CURRENCY_SYMBOLS } from '../../accounts/types/AccountTypes'
 import type { CreateInstallmentPlanRequest } from '../types/InstallmentTypes'
 import styles from './InstallmentPlanForm.module.css'
 
@@ -48,6 +49,10 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
 
   const totalAmount = watch('totalAmount')
   const numberOfMonths = watch('numberOfMonths')
+  const selectedCardId = watch('cardId')
+
+  const activeCard = (cards ?? []).find((c) => c.id === selectedCardId)
+  const currencySymbol = activeCard ? (CURRENCY_SYMBOLS[activeCard.currency] ?? activeCard.currency) : '$'
 
   useEffect(() => {
     if (totalAmount > 0 && numberOfMonths > 0) {
@@ -112,7 +117,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
           render={({ field }) => (
             <InputNumber
               {...field}
-              prefix="$"
+              prefix={currencySymbol}
               min={0}
               step={0.01}
               placeholder="0.00"
@@ -150,7 +155,7 @@ function InstallmentPlanForm({ onSubmit, isSubmitting, apiErrorMessage, submitLa
           render={({ field }) => (
             <InputNumber
               {...field}
-              prefix="$"
+              prefix={currencySymbol}
               min={0}
               step={0.01}
               placeholder={t('installments.monthlyPaymentPlaceholder')}

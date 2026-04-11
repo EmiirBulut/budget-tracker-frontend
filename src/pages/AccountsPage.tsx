@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import AddAccountModal from '../features/accounts/components/AddAccountModal'
 import AccountList from '../features/accounts/components/AccountList'
 import { useAccounts } from '../features/accounts/hooks/useAccounts'
+import { useDashboardSummary } from '../features/dashboard/hooks/useDashboardSummary'
 import { usePreferences } from '../features/settings/hooks/usePreferences'
 import { formatTotalBalance } from '../lib/formatCurrency'
 import styles from './AccountsPage.module.css'
@@ -16,10 +17,10 @@ function AccountsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
   const { data: accounts } = useAccounts()
   const { data: preferences } = usePreferences()
+  const { data: summary } = useDashboardSummary()
   const preferredCurrency = preferences?.defaultCurrency ?? 'USD'
 
   const activeAccounts = accounts?.filter((a) => !a.isArchived) ?? []
-  const totalBalance = activeAccounts.reduce((sum, a) => sum + a.balance, 0)
 
   return (
     <main className={styles.page}>
@@ -35,7 +36,7 @@ function AccountsPage() {
 
       <Card variant="borderless" className={styles.balanceBanner}>
         <Text className={styles.bannerLabel}>{t('accounts.totalBalance')}</Text>
-        <Title level={2} className={styles.bannerAmount}>{formatTotalBalance(totalBalance, preferredCurrency)}</Title>
+        <Title level={2} className={styles.bannerAmount}>{formatTotalBalance(summary?.totalBalance ?? 0, summary?.defaultCurrency ?? preferredCurrency)}</Title>
         <Text className={styles.bannerMeta}>{activeAccounts.length} {t('accounts.activeAccounts')}</Text>
       </Card>
 

@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import { updateAccount } from '../api/accountsApi'
 import { ACCOUNTS_QUERY_KEY } from './useAccounts'
 import { accountDetailQueryKey } from './useAccountDetail'
+import { DASHBOARD_SUMMARY_QUERY_KEY } from '../../dashboard/hooks/useDashboardSummary'
 import type { Account, UpdateAccountRequest } from '../types/AccountTypes'
 import type { ApiErrorResponse } from '../../auth/types/AuthTypes'
 
@@ -19,6 +20,7 @@ export function useUpdateAccount() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ACCOUNTS_QUERY_KEY })
       queryClient.invalidateQueries({ queryKey: accountDetailQueryKey(variables.id) })
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_SUMMARY_QUERY_KEY })
     },
   })
 }
