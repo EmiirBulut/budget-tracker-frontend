@@ -9,6 +9,7 @@ import { useUiStore } from '../../features/settings/store/uiStore'
 import { ROUTES } from '../../router/routes'
 import Sidebar from './Sidebar'
 import PwaUpdatePrompt from '../ui/PwaUpdatePrompt'
+import QuickAddTransactionFab from '../ui/QuickAddTransactionFab'
 import styles from './AppLayout.module.css'
 
 const { Sider, Content, Header } = Layout
@@ -84,6 +85,8 @@ function AppLayout() {
         <Content className={styles.content}>
           <Outlet />
         </Content>
+
+        <QuickAddTransactionFab />
       </Layout>
     </Layout>
   )
